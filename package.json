@@ -1,0 +1,38 @@
+{
+  "name": "bellarose-inventory_billing-back",
+  "version": "1.0.0",
+  "private": true,
+  "description": "API of Bellarose Inventory and Billing",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "nodemon": "nodemon app.js",
+    "debug": "nodemon --inspect app.js"
+  },
+  "keywords": [],
+  "author": "Sebastian Cardona Loaiza",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/datastore": "^4.5.0",
+    "bcrypt-nodejs": "0.0.3",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "edge": "^7.10.1",
+    "exceljs": "^3.8.1",
+    "express": "^4.12.3",
+    "fs": "0.0.1-security",
+    "gstore-node": "^7.2.3",
+    "jsonwebtoken": "^8.5.1",
+    "node-msoffice-pdf": "0.0.7",
+    "nodemailer": "^6.4.4",
+    "uniqid": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SebastianCl/bellarose-inventory_billing-back.git"
+  }
+}

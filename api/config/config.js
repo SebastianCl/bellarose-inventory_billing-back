@@ -1,0 +1,15 @@
+module.exports = {
+  'secret': '*987654321bellarose-inventory_billing123456789*',
+  'front_dev': 'http://localhost:4200',
+  'keyPath': './api/config/key/',
+  'key_dev': 'bellarose-qa-8a591141e80f.json',
+  'version': '1.0.0'
+};
+
+module.exports.configJWT = {
+  issuer: 'bellarose-inventory_billing',
+  subject: 'cardonaloaizasebastian112@gmail.com',
+  audience: 'bellarose-inventory_billing-view.appspot.com',
+  expiresIn: "12h",
+  algorithm: 'HS256'
+};
