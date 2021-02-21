@@ -9,7 +9,7 @@
 * @description Se configura el modelo de usuarios. Se configura la tabla NoSQL de la base de datos para el esquema.
 */
 
-//Dependencias
+// Dependencias
 const { instances } = require('gstore-node');
 
 // Recupera la instancia para gstore
