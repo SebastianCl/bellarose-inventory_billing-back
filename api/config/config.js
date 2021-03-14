@@ -3,7 +3,8 @@ module.exports = {
   'front_dev': 'http://localhost:4200',
   'keyPath': './api/config/key/',
   'key_dev': 'bellarose-qa-8a591141e80f.json',
-  'version': '1.0.0'
+  'version': '1.0.0',
+  'bucketName_dev': 'bellarose-qa.appspot.com'
 };
 
 module.exports.configJWT = {

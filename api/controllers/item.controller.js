@@ -18,8 +18,11 @@ const Item = require('../models/item.model');
 // Servicio
 const commonService = require('../service/common.service');
 const itemService = require('../service/item.service');
+const storageService = require('../service/storage.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
+// Validaciones
+const validateData = require('../tools/validations/validateData'); // Scripts de validaciones>
 /**************************
  * FIN DEPENDENCIAS       *
  **************************/
@@ -79,8 +82,26 @@ const createItem = async (req, res) => {
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let data = Item.sanitize(req.body);
-        let response = await commonService.createModel(Item, data);
+        let data = req.body;
+
+        // Validar si se envio imagen
+        let imageBase64 = data.imageBase64;
+        if (validateData.isEmpty(imageBase64)) return res.status(400).send({ resp: false, msg: 'Debe enviar la imagen.' });
+
+        let imageData = {
+            nameFile: data.reference,
+            routeFile: `${data.type}/${data.brand}/${data.color}/${data.size}`,
+            imageBase64
+        };
+
+        let respondeStorage = await storageService.uploadToStorage(imageData);
+        if (!respondeStorage.resp) return res.status(400).send(respondeStorage);
+
+
+        data.imageURL = respondeStorage.msg.msg;
+        let dataItem = Item.sanitize(data);
+
+        let response = await commonService.createModel(Item, dataItem);
         if (response.resp === false) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {

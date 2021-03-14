@@ -3,6 +3,7 @@ const auth = require('../auth/securityJWT');
 
 // Modelos
 const User = require('../models/user.model');
+const Role = require('../models/role.model');
 
 // Libreria de encriptación
 const bcrypt = require('bcrypt-nodejs');
@@ -60,17 +61,41 @@ async function hashPassword(password) {
     });
 }
 
-const createUser = async (data) => {
-    let res = { resp: false, code: 0, msg: {} };
+// Validar si el id enviado pertenece a un rol existente
+async function processRol(dataRole) {
+    let res = { code: 400, msg: {} };
 
-    // Validar si se envio contraseña
-    if (!data.password) {
-        res.code = 401;
-        res.msg = 'You must enter the password.';
+    let userData = {};
+    let roleId = dataRole; // Obtener el id del rol
+
+    let role = await commonService.getModel(Role, roleId);
+    if (role.resp === false) {
+        res.msg = { resp: false, msg: `El rol con id ${roleId} no existe.` };
         return res;
     }
 
+    // Asignar la entidad rol como una propiedad del usuario
+    userData.role = role.msg.entityKey;
+    res.code = 200;
+    res.msg = userData;
+    return res;
+}
+
+const createUser = async (data) => {
+    let res = { resp: false, code: 0, msg: {} };
+
     let userData = data;
+
+    // Validar el rol
+    let response = await processRol(data.role);
+    if (response.code !== 200) {
+        res.code = response.code;
+        res.msg = response.msg;
+        return res;
+    }
+    // Asignar llave de rol
+    userData.role = response.msg.role;
+
     // Encriptar contraseña
     let hash = await hashPassword(data.password);
     userData.password = hash;

@@ -20,19 +20,17 @@ const { Schema } = gstore;
  * Creando el esquema para el modelo de item
 */
 const itemSchema = new Schema({
-    ref: { type: String, required: true },
-    description: { type: String, required: true },
-
-    retail: { type: Schema.Types.Double, required: true },
-    discount: { type: Schema.Types.Double, required: true },
-    price: { type: Schema.Types.Double, required: true },
+    type: { type: String, required: true },
+    reference: { type: String, required: true },
+    brand: { type: String, required: true },
+    color: { type: String, required: true },
+    size: { type: String, required: true },
+    imageURL: { type: String, required: true },
+    comments: { type: String, required: false },
+    price: { type: Number, required: true },
     quantity: { type: Number, required: true },
-    total: { type: Schema.Types.Double, required: false },
+    available: { type: Boolean, required: true },
 
-    quote: { type: String, required: false, default: '' },
-    purchaseOrder: { type: String, required: false, default: '' },
-    requested: { type: Boolean, required: false, default: null },
-    numCO: { type: Number, default: 0, required: false }
 });
 
 itemSchema.queries('list');

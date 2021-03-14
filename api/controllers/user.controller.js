@@ -57,8 +57,14 @@ const createUser = async (req, res) => {
 
         let response = {};
         let email = req.body.email;
+        let role = req.body.role;
+        let password = req.body.password;
         // Valida el email 
         if (email === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el email del usuario.' });
+        // Valida el rol
+        if (role === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el rol del usuario.' });
+        // Valida el email 
+        if (password === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar la clave del usuario.' });
         // Buscar si existe un usuario registrado con el correo enviado
         let user = await userService.findByEmail(email);
         if (user.length > 0) return res.status(400).send({ resp: false, msg: `El email ${email} esta en uso.` });
@@ -174,6 +180,75 @@ const deleteUser = async (req, res) => {
     }
 };
 
+/**
+ * @function getRoles
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Permite obtener la lista de roles
+ */
+const getRoles = async (req, res) => {
+    try {
+        const roleList = await commonService.getModels(Role);
+        return res.status(200).send(roleList);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send(error.message);
+    }
+};
+
+/**
+ * @function getRole
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Permite obtener un rol filtrado por ID.
+ */
+const getRole = async (req, res) => {
+    try {
+        let id = req.headers['id'];
+        const response = await commonService.getModel(Role, id);
+        if (response.resp === false) return res.status(400).send(response);
+        return res.status(200).send(response);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send(error.message);
+    }
+};
+
+/**
+ * @function createRole
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Permite crear un rol nuevo en DataStore
+ */
+const createRole = async (req, res) => {
+    try {
+        const data = Role.sanitize(req.body);
+        const role = await commonService.createModel(Role, data);
+        return res.status(200).send(role);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send(error.message);
+    }
+};
+
+
+/**
+ * @function deleteRole
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Permite eliminar un rol especifico por ID
+ */
+const deleteRole = async (req, res) => {
+    try {
+        let id = req.headers['id'];
+        const user = await commonService.deleteModel(Role, id);
+        return res.status(200).send(user);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send(error.message);
+    }
+};
+
 
 //Exportar funciones
 module.exports = {
@@ -182,5 +257,9 @@ module.exports = {
     createUser,
     updateUser,
     deleteUser,
-    getLogin
+    getLogin,
+    getRoles,
+    getRole,
+    createRole,
+    deleteRole
 };

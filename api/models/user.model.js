@@ -20,10 +20,13 @@ const { Schema } = gstore;
  * Creando el esquema para el modelo de usuario
 */
 const userSchema = new Schema({
-    firstname: { type: String, read: true, required: true },
-    lastname: { type: String, read: true, required: true },
+    name: { type: String, read: true, required: true },
+    identification: { type: String, read: true, required: true }, // cédula
+    direction: { type: String, read: true, required: false },
+    telephone: { type: Number, read: true, required: false },
     email: { type: String, read: true, required: true, validate: 'isEmail' },
     password: { type: String, read: true, required: true },
+    role: { type: Schema.Types.Key, read: true, ref: 'Role', required: true },
     active: { type: Boolean, read: true, required: true }
 });
 

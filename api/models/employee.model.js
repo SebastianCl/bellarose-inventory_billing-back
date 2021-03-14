@@ -24,6 +24,7 @@ const employeeSchema = new Schema({
     identification: { type: Number, read: true, required: true }, // cédula
     direction: { type: String, read: true, required: false },
     email: { type: String, read: true, required: false, validate: 'isEmail' },
+    password: { type: String, read: true, required: true },
     telephone: { type: Number, read: true, required: false },
     active: { type: Boolean, read: true, required: true }
 });

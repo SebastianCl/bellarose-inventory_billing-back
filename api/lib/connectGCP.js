@@ -5,6 +5,7 @@ const env = require('./setupEnv');
  **************************/
 const { Gstore, instances } = require('gstore-node');
 const { Datastore } = require('@google-cloud/datastore');
+const { Storage } = require('@google-cloud/storage');
 /**************************
  * FIN DEPENDENCIAS GCP   *
  **************************/
@@ -21,6 +22,11 @@ function conectionDatastore() {
     instances.set('unique-id', gstore);
 }
 
+function conectionStorage() {
+    return new Storage({ keyFilename: keyPath });
+}
+
 module.exports = {
-    conectionDatastore
+    conectionDatastore,
+    conectionStorage
 }
