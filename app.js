@@ -52,7 +52,7 @@ const corsOptions = { origin: front };
 app.use(cors(corsOptions));
 
 
-app.get('/', (req, res) => { res.send(`Bellarose API version ${config.version}`); });
+app.get('/', (req, res) => { res.send(`Bellarose API version ${config.version} in port: ${port}`); });
 app.use('/user', user);
 app.use('/item', item);
 app.use('/employee', employee);
