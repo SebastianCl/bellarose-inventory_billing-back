@@ -59,9 +59,8 @@ const getItem = async (req, res) => {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
-
         let id = req.headers['id'];
-        let response = await commonService.getModel(Item, id);
+        const response = await commonService.getModel(Item, id);
         if (response.resp === false) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {

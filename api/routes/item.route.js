@@ -23,6 +23,5 @@ router.get('/getItem', item_controller.getItem);
 router.put('/updateItem', item_controller.updateItem);
 router.delete('/deleteItem', item_controller.deleteItem);
 router.post('/findItemsWithFilter', item_controller.findItemsWithFilter);
-router.get('/findItemsCO', item_controller.findItemsCO);
 
 module.exports = router;

@@ -20,6 +20,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^8.2.0",
     "edge": "^7.10.1",
+    "excel4node": "^1.7.2",
     "exceljs": "^3.8.1",
     "express": "^4.12.3",
     "fs": "0.0.1-security",
@@ -27,7 +28,7 @@
     "jsonwebtoken": "^8.5.1",
     "node-msoffice-pdf": "0.0.7",
     "nodemailer": "^6.4.4",
-    "uniqid": "^5.1.0"
+    "uniqid": "^5.3.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.4"
