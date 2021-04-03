@@ -170,14 +170,23 @@ const findItemsWithFilter = async (req, res) => {
         let options = req.body;
         let filter = { filters: [] };
 
-        if (options.numCO !== undefined && options.numCO !== "") {
-            filter.filters.push(['numCO', options.numCO])
+        if (options.type !== undefined && options.type !== "") {
+            filter.filters.push(['type', options.type])
         }
-        if (options.requested !== undefined && options.requested !== "") {
-            filter.filters.push(['requested', options.requested])
+        if (options.reference !== undefined && options.reference !== "") {
+            filter.filters.push(['reference', options.reference])
         }
-        if (options.quote !== undefined && options.quote !== "") {
-            filter.filters.push(['quote', options.quote])
+        if (options.brand !== undefined && options.brand !== "") {
+            filter.filters.push(['brand', options.brand])
+        }
+        if (options.color !== undefined && options.color !== "") {
+            filter.filters.push(['color', options.color])
+        }
+        if (options.size !== undefined && options.size !== "") {
+            filter.filters.push(['size', options.size])
+        }
+        if (options.available !== undefined && options.available !== "") {
+            filter.filters.push(['available', options.available])
         }
 
         const itemList = await commonService.listModelsWithFilter(Item, filter);
