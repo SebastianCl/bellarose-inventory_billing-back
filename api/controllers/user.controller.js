@@ -150,7 +150,7 @@ const getUser = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
         let id = req.headers['id'];
         const response = await commonService.getModel(User, id);
-        if (response.resp === false) {
+        if (!response.resp) {
             res.status(400).send(response);
         }
         res.status(200).send(response);
@@ -206,7 +206,7 @@ const getRole = async (req, res) => {
     try {
         let id = req.headers['id'];
         const response = await commonService.getModel(Role, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);

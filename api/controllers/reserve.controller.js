@@ -41,7 +41,7 @@ const getReserves = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let response = await commonService.getModels(Reserve);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -62,7 +62,7 @@ const getReserve = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
         let id = req.headers['id'];
         const response = await commonService.getModel(Reserve, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -123,7 +123,7 @@ const createReserve = async (req, res) => {
         let response = await commonService.createModel(Reserve, dataReserve);
 
         // Validar si se registro la reserva
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
 
         // Actualizar los items
         for (let index = 0; index < allGood.length; index++) {
@@ -143,7 +143,7 @@ const createReserve = async (req, res) => {
             // TODO: Asegurar que los items que no se actualizarón, se actualicen
         }
 
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -197,7 +197,7 @@ const finishReserve = async (req, res) => {
         let newData = { active: false };
         let data = Reserve.sanitize(newData);
         let response = await commonService.updateModel(Reserve, data, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -220,7 +220,7 @@ const updateReserve = async (req, res) => {
         let id = req.headers['id'];
         let data = Reserve.sanitize(req.body);
         let response = await commonService.updateModel(Reserve, data, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -243,7 +243,7 @@ const deleteReserve = async (req, res) => {
 
         let id = req.headers['id'];
         let response = await commonService.deleteModel(Reserve, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);

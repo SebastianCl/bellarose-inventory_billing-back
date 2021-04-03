@@ -88,6 +88,21 @@ const listModelsWithFilter = async (Model, filter) => {
     return res;
 }
 
+// Obtener entityKey de un modelo
+const getEntityKey = async (Model, id) => {
+    let res = { resp: false, msg: `El registro con id ${id} no existe.` };
+
+    let model = await getModel(Model, id);
+    if (!model.resp) return res;
+
+    // Obtener entityKey
+    let entityKey = model.msg.entityKey;
+
+    res.resp = true;
+    res.msg = entityKey
+    return res;
+}
+
 
 //Exportar funciones
 module.exports = {
@@ -96,5 +111,6 @@ module.exports = {
     createModel,
     updateModel,
     deleteModel,
-    listModelsWithFilter
+    listModelsWithFilter,
+    getEntityKey
 };

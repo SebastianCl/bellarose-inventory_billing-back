@@ -356,82 +356,6 @@ const deleteImages = async (req, res) => {
     }
 }
 
-/**
- * @function suggestionsList
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
- * @description Obtener una lista con las palabras para sugerencias de busqueda
- */
-const suggestionsList = async (req, res) => {
-    try {
-        let resp = await storageService.suggestionsList();
-        return res.status(resp.code).send(resp.msg);
-    } catch (error) {
-        console.log(error.message);
-        return res.status(500).send(error.message);
-    }
-}
-
-/**
- * @function findImagesWithSuggestions
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
- * @description Busca los registro de imágenes por filtro de sugerencias
- */
-const findImagesWithSuggestions = async (req, res) => {
-    try {
-        let filter = validateData.validateFilter(req.body);
-        if (filter.filters.length === 0) return res.status(400).send({ resp: true, msg: 'Debe indicar los filtros sugeridos.' });
-
-        // Buscar imágenes con sugerencias
-        const response = await storageService.findImagesWithSuggestions(filter);
-        return res.status(response.code).send(response.msg);
-    } catch (error) {
-        console.log(error.message);
-        return res.status(500).send(error.message);
-    }
-}
-
-/**
- * @function updateValidity
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
- * @description Permite actualizar la vigencia de una imagen principal
- */
-const updateValidity = async (req, res) => {
-    try {
-        let id = req.body.id;
-        let effectiveEndDate = req.body.effectiveEndDate;
-
-        // Validar si se envio el id
-        if (validateData.isEmpty(id)) return res.status(400).send({ resp: false, msg: 'Debe indicar el id de la imagen.' });
-        // Validar si se envio la nueva fecha final
-        if (validateData.isEmpty(effectiveEndDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la nueva fecha final de vigencia.' });
-        // Validar si se envio la nueva fecha final con el formato correcto
-        if (!validateData.validateDateDMY(effectiveEndDate)) return res.status(400).send({ resp: false, msg: 'Formato incorrecto de fecha final de vigencia. Debe ser m/d/y' });
-
-        let response = await commonService.getModel(Image, id);
-        // Valida que exista la imagen
-        if (response.resp === false) return res.status(400).send({ resp: false, msg: `No existe imagen con id: ${id}.` });
-        // Validar que sea una imagen principal
-        if (response.msg.currentValidity === false) return res.status(400).send({ resp: false, msg: `La imagen con id: ${id} no esta vigente.` });
-        let effectiveStartDate = util.getCurrentDateWithFormat(response.msg.effectiveStartDate);
-        // Validar rango de fechas
-        if (!validateData.validateGreaterThan(effectiveStartDate, effectiveEndDate)) {
-            effectiveStartDate = effectiveStartDate.split('/');
-            // Ordenar fecha a formato d/m/y
-            let dateDMY = `${effectiveStartDate[1]}/${effectiveStartDate[0]}/${effectiveStartDate[2]}`;
-            return res.status(400).send({ resp: false, msg: `La fecha final debe ser mayor a la fecha inicial: ${dateDMY}` });
-        }
-
-        response = await storageService.extendValidity(effectiveEndDate, id);
-        return res.status(response.code).send(response.msg);
-    } catch (error) {
-        console.log(error.message);
-        return res.status(500).send(error.message);
-    }
-};
-
 // Exportar funciones
 module.exports = {
     uploadToStorage,
@@ -439,6 +363,5 @@ module.exports = {
     downloadAllFolder,
     generateReportOfFilter,
     findImagesWithFilter,
-    deleteImages,
-    findImagesWithSuggestions
+    deleteImages
 };

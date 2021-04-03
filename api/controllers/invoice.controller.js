@@ -6,15 +6,18 @@
 
 /**
 * @controller Controlador de empleado
-* @description Script NODEJS que permite realizar operaciones sobre los clientes registrados. Utilizamos 
+* @description Script NODEJS que permite realizar operaciones sobre los factura registrados. Utilizamos 
 *              como servicio la base de datos no relacional Google Cloud DataStore.
 */
 
 /**************************
  * INCIO DEPENDENCIAS     *
  **************************/
-// Modelo
+// Modelos
 const Customer = require('../models/customer.model');
+const Invoice = require('../models/invoice.model');
+const Employee = require('../models/employee.model');
+const Reserve = require('../models/reserve.model');
 // Servicio
 const commonService = require('../service/common.service');
 // Autenticación JWT
@@ -24,18 +27,18 @@ const auth = require('../auth/securityJWT');
  **************************/
 
 /**
- * @function getCustomer
+ * @function getInvoice
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite listar todas los clientes
+ * @description Permite listar todas los facturas
  */
-const getCustomers = async (req, res) => {
+const getInvoices = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let response = await commonService.getModels(Customer);
+        let response = await commonService.getModels(Invoice);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -45,19 +48,19 @@ const getCustomers = async (req, res) => {
 };
 
 /**
- * @function getCustomer
+ * @function getInvoice
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite obtener un clientes filtrado por ID.
+ * @description Permite obtener una factura filtrado por ID.
  */
-const getCustomer = async (req, res) => {
+const getInvoice = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let response = await commonService.getModel(Customer, id);
+        let response = await commonService.getModel(Invoice, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -67,19 +70,43 @@ const getCustomer = async (req, res) => {
 };
 
 /**
- * @function createCustomer
+ * @function createInvoice
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite crear un clientes nueva en el DataStore
+ * @description Permite crear una factura nueva en el DataStore
  */
-const createCustomer = async (req, res) => {
+const createInvoice = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let data = Customer.sanitize(req.body);
-        let response = await commonService.createModel(Customer, data);
+        let customerID = req.body.customer;
+        let reserveID = req.body.reserve;
+        let employeeID = req.body.employee;
+        let cost = req.body.cost;
+        let deposit = req.body.deposit;
+        let description = req.body.description;
+        let active = true;
+
+        let exist = await commonService.getEntityKey(Customer, customerID);
+        if (!exist.resp) return { resp: false, msg: `No existe el cliente con id ${customerID}` };
+        let customer = exist.msg;
+
+        exist = await commonService.getEntityKey(Reserve, reserveID);
+        if (!exist.resp) return { resp: false, msg: `No existe la reserva con id ${reserveID}` };
+        let reserve = exist.msg;
+
+        exist = await commonService.getEntityKey(Employee, employeeID);
+        if (!exist.resp) return { resp: false, msg: `No existe el empleado con id ${employeeID}` };
+        let employee = exist.msg;
+
+        let data = {
+            customer, reserve, employee, cost, deposit, description, active
+        }
+
+        let invoice = Invoice.sanitize(data);
+        let response = await commonService.createModel(Invoice, invoice);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -89,20 +116,20 @@ const createCustomer = async (req, res) => {
 };
 
 /**
- * @function updateCustomer
+ * @function updateInvoice
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite actualizar un clientes especifico por ID
+ * @description Permite actualizar una factura especifico por ID
  */
-const updateCustomer = async (req, res) => {
+const updateInvoice = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let data = Customer.sanitize(req.body);
-        let response = await commonService.updateModel(Customer, data, id);
+        let data = Invoice.sanitize(req.body);
+        let response = await commonService.updateModel(Invoice, data, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -113,19 +140,19 @@ const updateCustomer = async (req, res) => {
 
 
 /**
- * @function deleteCustomer
+ * @function deleteInvoice
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite eliminar un clientes especifico por ID
+ * @description Permite eliminar una factura especifico por ID
  */
-const deleteCustomer = async (req, res) => {
+const deleteInvoice = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let response = await commonService.deleteModel(Customer, id);
+        let response = await commonService.deleteModel(Invoice, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -136,9 +163,9 @@ const deleteCustomer = async (req, res) => {
 
 // Exportar funciones
 module.exports = {
-    getCustomer,
-    getCustomers,
-    createCustomer,
-    updateCustomer,
-    deleteCustomer
+    getInvoice,
+    getInvoices,
+    createInvoice,
+    updateInvoice,
+    deleteInvoice
 };

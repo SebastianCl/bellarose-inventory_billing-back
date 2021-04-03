@@ -40,7 +40,7 @@ const getItems = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let response = await commonService.getModels(Item);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -61,7 +61,7 @@ const getItem = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
         let id = req.headers['id'];
         const response = await commonService.getModel(Item, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -101,7 +101,7 @@ const createItem = async (req, res) => {
         let dataItem = Item.sanitize(data);
 
         let response = await commonService.createModel(Item, dataItem);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -124,7 +124,7 @@ const updateItem = async (req, res) => {
         let id = req.headers['id'];
         let data = Item.sanitize(req.body);
         let response = await commonService.updateModel(Item, data, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -147,7 +147,7 @@ const deleteItem = async (req, res) => {
 
         let id = req.headers['id'];
         let response = await commonService.deleteModel(Item, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -197,20 +197,6 @@ const findItemsWithFilter = async (req, res) => {
     }
 }
 
-const findItemsCO = async (req, res) => {
-    try {
-        // Validar el token
-        let resToken = auth.verifyToken(req);
-        if (!resToken.resp) return res.status(401).send(resToken);
-
-        const respList = await itemService.findItemsCO();
-        res.status(respList.code).send({ resp: respList.resp, msg: respList.msg });
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
-    }
-}
-
 //Exportar funciones
 module.exports = {
     getItems,
@@ -218,6 +204,5 @@ module.exports = {
     createItem,
     updateItem,
     deleteItem,
-    findItemsWithFilter,
-    findItemsCO
+    findItemsWithFilter
 };

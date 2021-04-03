@@ -43,6 +43,7 @@ const item = require('./api/routes/item.route');
 const employee = require('./api/routes/employee.route');
 const customer = require('./api/routes/customer.route');
 const reserve = require('./api/routes/reserve.route');
+const invoice = require('./api/routes/invoice.route');
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
@@ -59,6 +60,7 @@ app.use('/item', item);
 app.use('/employee', employee);
 app.use('/customer', customer);
 app.use('/reserve', reserve);
+app.use('/invoice', invoice);
 
 app.listen(port, () => { console.log(`Server is up and running on port number ${port}`); });
 

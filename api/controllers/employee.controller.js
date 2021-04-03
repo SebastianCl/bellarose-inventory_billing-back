@@ -36,7 +36,7 @@ const getEmployees = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let response = await commonService.getModels(Employee);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -58,7 +58,7 @@ const getEmployee = async (req, res) => {
 
         let id = req.headers['id'];
         let response = await commonService.getModel(Employee, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -80,7 +80,7 @@ const createEmployee = async (req, res) => {
 
         let data = Employee.sanitize(req.body);
         let response = await commonService.createModel(Employee, data);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -103,7 +103,7 @@ const updateEmployee = async (req, res) => {
         let id = req.headers['id'];
         let data = Employee.sanitize(req.body);
         let response = await commonService.updateModel(Employee, data, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
@@ -126,7 +126,7 @@ const deleteEmployee = async (req, res) => {
 
         let id = req.headers['id'];
         let response = await commonService.deleteModel(Employee, id);
-        if (response.resp === false) return res.status(400).send(response);
+        if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
