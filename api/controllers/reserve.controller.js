@@ -91,12 +91,12 @@ const createReserve = async (req, res) => {
         // Validar si se envio los items
         if (validateData.isEmpty(items) || items.length == 0) return res.status(400).send({ resp: false, msg: 'Debe indicar los items.' });
         // Validar si se envio la fecha de inicio de la reserva
-        if (validateData.isEmpty(startDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la fecha de inicio de la reserva..' });
+        if (validateData.isEmpty(startDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la fecha de inicio de la reserva.' });
         // Validar si se envio la fecha fin de la reserva
         if (validateData.isEmpty(endDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la fecha fin de la reserva.' });
 
         let allBad = [];
-        let allGood = [];
+        let allDataArticle = [];
         // Validar si el item existe o esta disponible
         for (let index = 0; index < items.length; index++) {
             const reference = items[index];
@@ -110,7 +110,7 @@ const createReserve = async (req, res) => {
             }
             else {
                 const itemData = exist.msg[0];
-                allGood.push(itemData);
+                allDataArticle.push(itemData);
             }
             // TODO: Validar si los items estan activos
         }
@@ -119,6 +119,7 @@ const createReserve = async (req, res) => {
 
         //data.reserveDay = general.getDateWithFormatDatastore();
         data.active = true;
+        data.items = allDataArticle;
         let dataReserve = Reserve.sanitize(data);
         let response = await commonService.createModel(Reserve, dataReserve);
 
@@ -126,8 +127,8 @@ const createReserve = async (req, res) => {
         if (!response.resp) return res.status(400).send(response);
 
         // Actualizar los items
-        for (let index = 0; index < allGood.length; index++) {
-            const item = allGood[index];
+        for (let index = 0; index < allDataArticle.length; index++) {
+            const item = allDataArticle[index];
             const itemID = item.id;
 
             let quantity = item.quantity - 1;
@@ -173,7 +174,8 @@ const finishReserve = async (req, res) => {
 
         // Regresar items al inventario
         for (let index = 0; index < items.length; index++) {
-            const reference = items[index];
+            const dataArticle = items[index];
+            const reference = dataArticle.reference;
 
             // Validar si existe el item
             let filter = { filters: ['reference', reference] };

@@ -20,12 +20,15 @@ const { Schema } = gstore;
  * Creando el esquema para el modelo de reserve
 */
 const reserveSchema = new Schema({
+    reserveNumber: { type: String, required: false },
+    customerName: { type: String, required: false },
     items: [{ type: Array, read: true, required: true }],
     description: { type: String, required: false },
     reserveDay: { type: Date, required: false, default: gstore.defaultValues.NOW },
     startDate: { type: String, required: true, default: '' },
     endDate: { type: String, required: true, default: '' },
-    active: { type: Boolean, required: true }
+    active: { type: Boolean, required: true },
+    invoiceNumber: { type: String, required: true, default: '' }
 });
 
 reserveSchema.queries('list');
