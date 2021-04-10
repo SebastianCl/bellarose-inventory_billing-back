@@ -5,8 +5,8 @@
  */
 
 /**
-* @controller Controlador de item
-* @description Script NODEJS que permite realizar operaciones sobre los items registrados. Utilizamos 
+* @controller Controlador de article
+* @description Script NODEJS que permite realizar operaciones sobre los articles registrados. Utilizamos 
 *              como servicio la base de datos no relacional Google Cloud DataStore.
 */
 
@@ -14,10 +14,10 @@
  * INCIO DEPENDENCIAS     *
  **************************/
 // Modelo
-const Item = require('../models/item.model');
+const Article = require('../models/article.model');
 // Servicio
 const commonService = require('../service/common.service');
-const itemService = require('../service/item.service');
+const articleService = require('../service/article.service');
 const storageService = require('../service/storage.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
@@ -28,18 +28,18 @@ const validateData = require('../tools/validations/validateData'); // Scripts de
  **************************/
 
 /**
- * @function getItems
+ * @function getArticles
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite listar todas los items
+ * @description Permite listar todas los articles
  */
-const getItems = async (req, res) => {
+const getArticles = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let response = await commonService.getModels(Item);
+        let response = await commonService.getModels(Article);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -49,18 +49,18 @@ const getItems = async (req, res) => {
 };
 
 /**
- * @function getItem
+ * @function getArticle
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite obtener un item filtrado por ID.
+ * @description Permite obtener un articulo filtrado por ID.
  */
-const getItem = async (req, res) => {
+const getArticle = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
         let id = req.headers['id'];
-        const response = await commonService.getModel(Item, id);
+        const response = await commonService.getModel(Article, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -70,12 +70,12 @@ const getItem = async (req, res) => {
 };
 
 /**
- * @function createItem
+ * @function createArticle
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite crear un item nueva en el DataStore
+ * @description Permite crear un articulo nueva en el DataStore
  */
-const createItem = async (req, res) => {
+const createArticle = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
@@ -98,9 +98,9 @@ const createItem = async (req, res) => {
 
 
         data.imageURL = respondeStorage.msg.msg;
-        let dataItem = Item.sanitize(data);
+        let dataArticle = Article.sanitize(data);
 
-        let response = await commonService.createModel(Item, dataItem);
+        let response = await commonService.createModel(Article, dataArticle);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -110,20 +110,20 @@ const createItem = async (req, res) => {
 };
 
 /**
- * @function updateItem
+ * @function updateArticle
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite actualizar un item especifico por ID
+ * @description Permite actualizar un articulo especifico por ID
  */
-const updateItem = async (req, res) => {
+const updateArticle = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let data = Item.sanitize(req.body);
-        let response = await commonService.updateModel(Item, data, id);
+        let data = Article.sanitize(req.body);
+        let response = await commonService.updateModel(Article, data, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -134,19 +134,19 @@ const updateItem = async (req, res) => {
 
 
 /**
- * @function deleteItem
+ * @function deleteArticle
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite eliminar un item especifico por ID
+ * @description Permite eliminar un articulo especifico por ID
  */
-const deleteItem = async (req, res) => {
+const deleteArticle = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let response = await commonService.deleteModel(Item, id);
+        let response = await commonService.deleteModel(Article, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -156,12 +156,12 @@ const deleteItem = async (req, res) => {
 };
 
 /**
- * @function findItemsWithFilter
+ * @function findArticlesWithFilter
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Busca los registro de items por filtro
+ * @description Busca los registro de articles por filtro
  */
-const findItemsWithFilter = async (req, res) => {
+const findArticlesWithFilter = async (req, res) => {
     try {
         // Validar el token
         let resToken = auth.verifyToken(req);
@@ -189,8 +189,8 @@ const findItemsWithFilter = async (req, res) => {
             filter.filters.push(['available', options.available])
         }
 
-        const itemList = await commonService.listModelsWithFilter(Item, filter);
-        res.status(200).send(itemList);
+        const articleList = await commonService.listModelsWithFilter(Article, filter);
+        res.status(200).send(articleList);
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ resp: false, msg: error.message });
@@ -199,10 +199,10 @@ const findItemsWithFilter = async (req, res) => {
 
 //Exportar funciones
 module.exports = {
-    getItems,
-    getItem,
-    createItem,
-    updateItem,
-    deleteItem,
-    findItemsWithFilter
+    getArticles,
+    getArticle,
+    createArticle,
+    updateArticle,
+    deleteArticle,
+    findArticlesWithFilter
 };

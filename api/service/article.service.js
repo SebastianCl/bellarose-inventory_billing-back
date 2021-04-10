@@ -5,23 +5,23 @@
  */
 
 /**
-* @controller Servicio item
+* @controller Servicio de articulo
 * @description Script NODEJS que permite realizar operaciones CRUD sobre el modleo Item.
 */
 
 // Modelo
-const Item = require('../models/item.model');
+const Article = require('../models/article.model');
 
 // Servicio común
-const commonService = require('../service/common.service');
+const commonService = require('./common.service');
 
 
 /**
- * @function saveItems
- * @param {Array} items Items a registrar
- * @description Permite registrar varios items
+ * @function saveArticle
+ * @param {Array} itemData Articulos a registrar
+ * @description Permite registrar varios articulos
  */
-const saveItem = async (itemData) => {
+const saveArticle = async (itemData) => {
     let res = { resp: false, msg: {}, code: 400 };
 
     const element = itemData;
@@ -39,7 +39,7 @@ const saveItem = async (itemData) => {
         available: element.available
     };
 
-    let saveItemResp = await commonService.createModel(Item, newItem);
+    let saveItemResp = await commonService.createModel(Article, newItem);
     if (!saveItemResp.resp) {
         res.resp = false;
         res.code = 400;
@@ -54,5 +54,5 @@ const saveItem = async (itemData) => {
 }
 
 module.exports = {
-    saveItem
+    saveArticle
 }

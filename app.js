@@ -39,7 +39,7 @@ gcp.conectionDatastore();
 
 // Rutas API
 const user = require('./api/routes/user.route');
-const item = require('./api/routes/item.route');
+const article = require('./api/routes/article.route');
 const employee = require('./api/routes/employee.route');
 const customer = require('./api/routes/customer.route');
 const reserve = require('./api/routes/reserve.route');
@@ -56,7 +56,7 @@ app.use(cors(corsOptions));
 
 app.get('/', (req, res) => { res.send(`Bellarose API version ${config.version} in port: ${port}`); });
 app.use('/user', user);
-app.use('/item', item);
+app.use('/article', article);
 app.use('/employee', employee);
 app.use('/customer', customer);
 app.use('/reserve', reserve);

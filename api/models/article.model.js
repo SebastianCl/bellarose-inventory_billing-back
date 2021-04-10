@@ -5,8 +5,8 @@
  */
 
 /**
-* @controller Modelo de item
-* @description Se configura el modelo de item. Se configura la tabla NoSQL de la base de datos para el esquema.
+* @controller Modelo de articlo
+* @description Se configura el modelo de articulo. Se configura la tabla NoSQL de la base de datos para el esquema.
 */
 
 //Dependencias
@@ -17,9 +17,9 @@ const gstore = instances.get('unique-id');
 const { Schema } = gstore;
 
 /**
- * Creando el esquema para el modelo de item
+ * Creando el esquema para el modelo de articulo
 */
-const itemSchema = new Schema({
+const articleSchema = new Schema({
     type: { type: String, required: true },
     reference: { type: String, required: true },
     brand: { type: String, required: true },
@@ -33,7 +33,7 @@ const itemSchema = new Schema({
 
 });
 
-itemSchema.queries('list');
+articleSchema.queries('list');
 
 //Exporto el esquema de base de datos como 'Item'
-module.exports = gstore.model('Item', itemSchema);
+module.exports = gstore.model('Article', articleSchema);

@@ -15,7 +15,7 @@
  **************************/
 // Modelo
 const Reserve = require('../models/reserve.model');
-const Item = require('../models/item.model');
+const Article = require('../models/article.model');
 // Servicio
 const commonService = require('../service/common.service');
 const reserveService = require('../service/reserve.service');
@@ -102,7 +102,7 @@ const createReserve = async (req, res) => {
             const reference = items[index];
 
             let filter = { filters: ['reference', reference] };
-            let exist = await commonService.listModelsWithFilter(Item, filter);
+            let exist = await commonService.listModelsWithFilter(Article, filter);
 
             // Validar si el item existe
             if (!exist.resp) {
@@ -137,7 +137,7 @@ const createReserve = async (req, res) => {
             let itemNewData = { quantity, available };
 
             // Actualizar registros
-            let updated = await commonService.updateModel(Item, itemNewData, itemID);
+            let updated = await commonService.updateModel(Article, itemNewData, itemID);
 
             // Validar si se actualizo el item
             if (!updated.resp) return res.status(400).send({ resp: false, msg: allBad });
@@ -179,17 +179,17 @@ const finishReserve = async (req, res) => {
 
             // Validar si existe el item
             let filter = { filters: ['reference', reference] };
-            let resItem = await commonService.listModelsWithFilter(Item, filter);
-            if (!resItem.resp) return res.status(400).send(resItem);
+            let resArticle = await commonService.listModelsWithFilter(Article, filter);
+            if (!resArticle.resp) return res.status(400).send(resArticle);
 
-            let item = resItem.msg[0];
+            let item = resArticle.msg[0];
             let itemID = item.id;
             let quantity = item.quantity + 1;
             let available = true;
             let itemNewData = { quantity, available };
 
             // Actualizar registros
-            let updated = await commonService.updateModel(Item, itemNewData, itemID);
+            let updated = await commonService.updateModel(Article, itemNewData, itemID);
 
             // Validar si se actualizo el item
             if (!updated.resp) return res.status(400).send({ resp: false, msg: allBad });
