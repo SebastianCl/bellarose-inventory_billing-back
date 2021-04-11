@@ -22,7 +22,7 @@ const reserveService = require('../service/reserve.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 // Validaciones
-const validateData = require('../tools/validations/validateData'); // Scripts de validaciones
+const validateData = require('../tools/validations/validateData');
 const general = require('../tools/utils/general');
 /**************************
  * FIN DEPENDENCIAS       *
@@ -84,49 +84,69 @@ const createReserve = async (req, res) => {
 
         let data = req.body;
 
-        let items = data.items;
+        let customerName = data.customerName;
+        let employeeName = data.employeeName;
         let startDate = data.startDate;
         let endDate = data.endDate;
+        let articles = data.articles;
 
-        // Validar si se envio los items
-        if (validateData.isEmpty(items) || items.length == 0) return res.status(400).send({ resp: false, msg: 'Debe indicar los items.' });
+        // Validar si se envio el nombre del cliente
+        if (validateData.isEmpty(customerName)) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del cliente.' });
+        // Validar si se envio el nombre del empleado
+        if (validateData.isEmpty(employeeName)) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del empleado.' });
         // Validar si se envio la fecha de inicio de la reserva
         if (validateData.isEmpty(startDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la fecha de inicio de la reserva.' });
         // Validar si se envio la fecha fin de la reserva
         if (validateData.isEmpty(endDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la fecha fin de la reserva.' });
+        // Validar si se envio los artículos
+        if (validateData.isEmpty(articles) || articles.length == 0) return res.status(400).send({ resp: false, msg: 'Debe indicar los artículos.' });
 
         let allBad = [];
         let allDataArticle = [];
         // Validar si el item existe o esta disponible
-        for (let index = 0; index < items.length; index++) {
-            const reference = items[index];
+        for (let index = 0; index < articles.length; index++) {
+            const reference = articles[index];
 
             let filter = { filters: ['reference', reference] };
             let exist = await commonService.listModelsWithFilter(Article, filter);
 
-            // Validar si el item existe
+            // Validar si el artículo existe
             if (!exist.resp) {
-                allBad.push(reference);
+                allBad.push({ reference, motive: 'No existe artículo con la referencia indicada.' });
             }
             else {
-                const itemData = exist.msg[0];
-                allDataArticle.push(itemData);
+                const articleData = exist.msg[0];
+                // Validar si el artículo esta disponible
+                if (!articleData.available) {
+                    allBad.push({ reference, motive: 'No hay artículos disponibles con la referencia indicada.' });
+                }
+                else {
+                    allDataArticle.push(articleData);
+                }
             }
-            // TODO: Validar si los items estan activos
         }
 
         if (allBad.length > 0) return res.status(400).send({ resp: false, msg: allBad });
 
-        //data.reserveDay = general.getDateWithFormatDatastore();
-        data.active = true;
-        data.items = allDataArticle;
-        let dataReserve = Reserve.sanitize(data);
-        let response = await commonService.createModel(Reserve, dataReserve);
+        // Obtener número de reserva
+        let respondeReserve = await reserveService.getLastNumberReserve();
+
+        // Validar si se obtuvo respuesta de las reservas
+        if (!respondeReserve.resp) return res.status(401).send({ resp: false, msg: 'No se obtuve el número de reserva.' });
+
+        const reserveNumber = respondeReserve.msg + 1;
+        // Completar datos y crear reserva
+        const newReserve = {
+            customerName, employeeName, startDate, endDate,
+            reserveNumber,
+            articles: allDataArticle
+        };
+        let response = await commonService.createModel(Reserve, newReserve);
 
         // Validar si se registro la reserva
         if (!response.resp) return res.status(400).send(response);
 
-        // Actualizar los items
+        // Actualizar los artículos
         for (let index = 0; index < allDataArticle.length; index++) {
             const item = allDataArticle[index];
             const itemID = item.id;
@@ -141,7 +161,7 @@ const createReserve = async (req, res) => {
 
             // Validar si se actualizo el item
             if (!updated.resp) return res.status(400).send({ resp: false, msg: allBad });
-            // TODO: Asegurar que los items que no se actualizarón, se actualicen
+            // TODO: Asegurar que los artículos que no se actualizarón, se actualicen
         }
 
         if (!response.resp) return res.status(400).send(response);
@@ -170,11 +190,11 @@ const finishReserve = async (req, res) => {
         let respReserve = await commonService.getModel(Reserve, id);
         if (!respReserve.resp) return res.status(400).send(respReserve);
 
-        let items = respReserve.msg.entityData.items;
+        let articles = respReserve.msg.entityData.articles;
 
-        // Regresar items al inventario
-        for (let index = 0; index < items.length; index++) {
-            const dataArticle = items[index];
+        // Regresar artículos al inventario
+        for (let index = 0; index < articles.length; index++) {
+            const dataArticle = articles[index];
             const reference = dataArticle.reference;
 
             // Validar si existe el item

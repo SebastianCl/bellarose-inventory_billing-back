@@ -6,7 +6,7 @@
 
 /**
 * @controller Servicio de articulo
-* @description Script NODEJS que permite realizar operaciones CRUD sobre el modleo Item.
+* @description Script NODEJS que permite realizar operaciones CRUD sobre el modelo Article.
 */
 
 // Modelo

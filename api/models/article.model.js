@@ -29,8 +29,8 @@ const articleSchema = new Schema({
     comments: { type: String, required: false },
     price: { type: Number, required: true },
     quantity: { type: Number, required: true },
-    available: { type: Boolean, required: true },
-
+    reserved: { type: Number, required: false },
+    available: { type: Boolean, required: true }
 });
 
 articleSchema.queries('list');

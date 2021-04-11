@@ -21,13 +21,14 @@ const { Schema } = gstore;
 */
 const invoiceSchema = new Schema({
     customer: { type: Schema.Types.Key, read: true, ref: 'Customer', required: true },
-    reserve: { type: Schema.Types.Key, read: true, ref: 'Reserve', required: true },
     employee: { type: Schema.Types.Key, read: true, ref: 'Employee', required: true },
     cost: { type: Number, read: true, required: true },
     deposit: { type: Number, read: true, required: true },
     description: { type: String, read: true, required: true },
     date: { type: Date, required: false, default: gstore.defaultValues.NOW },
-    active: { type: Boolean, read: true, default: true }
+    active: { type: Boolean, read: true, default: true },
+    reserveNumber: { type: Number, required: true },
+    invoiceNumber: { type: Number, required: true }
 });
 
 // Exporto el esquema de base de datos como 'Invoice'
