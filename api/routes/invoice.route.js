@@ -23,4 +23,6 @@ router.get('/getInvoice', invoice_controller.getInvoice);
 router.put('/updateInvoice', invoice_controller.updateInvoice);
 router.delete('/deleteInvoice', invoice_controller.deleteInvoice);
 
+router.delete('/test', invoice_controller.test);
+
 module.exports = router;

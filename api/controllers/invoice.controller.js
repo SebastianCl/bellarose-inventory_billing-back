@@ -88,21 +88,22 @@ const createInvoice = async (req, res) => {
         let deposit = req.body.deposit;
         let description = req.body.description;
         let active = true;
+        let invoiceNumber = 0;
 
         let exist = await commonService.getEntityKey(Customer, customerID);
-        if (!exist.resp) return { resp: false, msg: `No existe el cliente con id ${customerID}` };
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}` });
         let customer = exist.msg;
 
-        exist = await commonService.getEntityKey(Reserve, reserveID);
-        if (!exist.resp) return { resp: false, msg: `No existe la reserva con id ${reserveID}` };
-        let reserve = exist.msg;
+        exist = await commonService.getModel(Reserve, reserveID);
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}` });
+        let reserveNumber = exist.msg.reserveNumber;
 
         exist = await commonService.getEntityKey(Employee, employeeID);
-        if (!exist.resp) return { resp: false, msg: `No existe el empleado con id ${employeeID}` };
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el empleado con id ${employeeID}` });
         let employee = exist.msg;
 
         let data = {
-            customer, reserve, employee, cost, deposit, description, active
+            customer, employee, reserveNumber, invoiceNumber, cost, deposit, description, active
         }
 
         let invoice = Invoice.sanitize(data);
@@ -139,6 +140,28 @@ const updateInvoice = async (req, res) => {
 };
 
 
+
+const test = async (req, res) => {
+    try {
+        /*
+        const query = await Invoice.query()
+            .filter('__key__', '>', Invoice.key(['Customer', '5080330100801536']))
+            .run();*/
+
+        const query = await Invoice.query()
+            .filter('__key__', '=', 5632499082330112)
+            .limit(1)
+            .run();
+
+        console.log(query);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+}
+
+
+
 /**
  * @function deleteInvoice
  * @param {Request} req Obtener parametros de cabecera
@@ -167,5 +190,6 @@ module.exports = {
     getInvoices,
     createInvoice,
     updateInvoice,
-    deleteInvoice
+    deleteInvoice,
+    test
 };

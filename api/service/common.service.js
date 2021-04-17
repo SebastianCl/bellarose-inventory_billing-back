@@ -40,9 +40,9 @@ const createModel = async (Model, data) => {
     const entityData = Model.sanitize(data);
     const model = new Model(entityData);
     await model.save()
-        .then((entities) => {
+        .then((entity) => {
             res.resp = true;
-            res.msg = entities.plain();
+            res.msg = entity.plain();
         })
         .catch(err => { res.msg = err; })
     return res;
