@@ -1,7 +1,7 @@
 /**
  * @version 2.0.0
- * @author Equipo Newinntech <sebastian.cardona@gruponetw.com>
- * @copyright 2020 Todos los derechos reservados.
+ * @author Sebastian Cardona Loaiza <sebastian.cardona@gruponetw.com>
+ * @copyright 2021 Todos los derechos reservados.
  * @description Script para declarar funciones de proposito general
  */
 

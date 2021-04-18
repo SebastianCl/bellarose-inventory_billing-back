@@ -85,6 +85,7 @@ const createReserve = async (req, res) => {
         let data = req.body;
 
         let customerName = data.customerName;
+        let customerID = data.customerID;
         let employeeName = data.employeeName;
         let startDate = data.startDate;
         let endDate = data.endDate;
@@ -92,6 +93,8 @@ const createReserve = async (req, res) => {
 
         // Validar si se envio el nombre del cliente
         if (validateData.isEmpty(customerName)) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del cliente.' });
+        // Validar si se envio el nombre del cliente
+        if (validateData.isEmpty(customerID)) return res.status(400).send({ resp: false, msg: 'Debe indicar la identificación del cliente.' });
         // Validar si se envio el nombre del empleado
         if (validateData.isEmpty(employeeName)) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del empleado.' });
         // Validar si se envio la fecha de inicio de la reserva
@@ -137,7 +140,7 @@ const createReserve = async (req, res) => {
         const reserveNumber = respondeReserve.msg + 1;
         // Completar datos y crear reserva
         const newReserve = {
-            customerName, employeeName, startDate, endDate,
+            customerName, customerID, employeeName, startDate, endDate,
             reserveNumber,
             articles: allDataArticle
         };
@@ -288,14 +291,23 @@ const findReservesWithFilter = async (req, res) => {
         let options = req.body;
         let filter = { filters: [] };
 
-        if (options.numCO !== undefined && options.numCO !== "") {
-            filter.filters.push(['numCO', options.numCO])
+        if (options.customerName !== undefined && options.customerName !== "") {
+            filter.filters.push(['customerName', options.customerName])
         }
-        if (options.requested !== undefined && options.requested !== "") {
-            filter.filters.push(['requested', options.requested])
+        if (options.customerID !== undefined && options.customerID !== "") {
+            filter.filters.push(['customerID', options.customerID])
         }
-        if (options.quote !== undefined && options.quote !== "") {
-            filter.filters.push(['quote', options.quote])
+        if (options.employeeName !== undefined && options.employeeName !== "") {
+            filter.filters.push(['employeeName', options.employeeName])
+        }
+        if (options.reserveNumber !== undefined && options.reserveNumber !== "") {
+            filter.filters.push(['reserveNumber', options.reserveNumber])
+        }
+        if (options.invoiceNumber !== undefined && options.invoiceNumber !== "") {
+            filter.filters.push(['invoiceNumber', options.invoiceNumber])
+        }
+        if (options.active !== undefined && options.active !== "") {
+            filter.filters.push(['active', options.active])
         }
 
         const reserveList = await commonService.listModelsWithFilter(Reserve, filter);

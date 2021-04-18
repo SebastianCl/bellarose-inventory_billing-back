@@ -22,7 +22,8 @@ router.get('/getInvoices', invoice_controller.getInvoices);
 router.get('/getInvoice', invoice_controller.getInvoice);
 router.put('/updateInvoice', invoice_controller.updateInvoice);
 router.delete('/deleteInvoice', invoice_controller.deleteInvoice);
+router.post('/findReservesWithFilter', invoice_controller.findReservesWithFilter);
 
-router.delete('/test', invoice_controller.test);
+router.post('/test', invoice_controller.test);
 
 module.exports = router;

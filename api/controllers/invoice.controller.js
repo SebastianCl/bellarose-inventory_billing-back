@@ -90,17 +90,22 @@ const createInvoice = async (req, res) => {
         let active = true;
         let invoiceNumber = 0;
 
+        // Validar si existe el cliente
         let exist = await commonService.getEntityKey(Customer, customerID);
-        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}` });
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}.` });
         let customer = exist.msg;
 
-        exist = await commonService.getModel(Reserve, reserveID);
-        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}` });
-        let reserveNumber = exist.msg.reserveNumber;
-
+        // Validar si existe el empleado
         exist = await commonService.getEntityKey(Employee, employeeID);
-        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el empleado con id ${employeeID}` });
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el empleado con id ${employeeID}.` });
         let employee = exist.msg;
+
+        // Validar si existe la reserva
+        exist = await commonService.getModel(Reserve, reserveID);
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}.` });
+        // Validar la reserva esta activa
+        if (!exist.msg.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
+        let reserveNumber = exist.msg.reserveNumber;
 
         let data = {
             customer, employee, reserveNumber, invoiceNumber, cost, deposit, description, active
@@ -184,6 +189,48 @@ const deleteInvoice = async (req, res) => {
     }
 };
 
+/**
+ * @function findReservesWithFilter
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Busca los registro de facturas por filtro
+ */
+const findReservesWithFilter = async (req, res) => {
+    try {
+        // Validar el token
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let options = req.body;
+        let filter = { filters: [] };
+
+        if (options.customerName !== undefined && options.customerName !== "") {
+            filter.filters.push(['customerName', options.customerName])
+        }
+        if (options.customerID !== undefined && options.customerID !== "") {
+            filter.filters.push(['customerID', options.customerID])
+        }
+        if (options.employeeName !== undefined && options.employeeName !== "") {
+            filter.filters.push(['employeeName', options.employeeName])
+        }
+        if (options.reserveNumber !== undefined && options.reserveNumber !== "") {
+            filter.filters.push(['reserveNumber', options.reserveNumber])
+        }
+        if (options.invoiceNumber !== undefined && options.invoiceNumber !== "") {
+            filter.filters.push(['invoiceNumber', options.invoiceNumber])
+        }
+        if (options.active !== undefined && options.active !== "") {
+            filter.filters.push(['active', options.active])
+        }
+
+        const reserveList = await commonService.listModelsWithFilter(Invoice, filter);
+        res.status(200).send(reserveList);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+}
+
 // Exportar funciones
 module.exports = {
     getInvoice,
@@ -191,5 +238,6 @@ module.exports = {
     createInvoice,
     updateInvoice,
     deleteInvoice,
+    findReservesWithFilter,
     test
 };
