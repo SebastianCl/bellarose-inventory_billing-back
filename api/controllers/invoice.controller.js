@@ -20,6 +20,7 @@ const Employee = require('../models/employee.model');
 const Reserve = require('../models/reserve.model');
 // Servicio
 const commonService = require('../service/common.service');
+const invoiceService = require('../service/invoice.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 /**************************
@@ -88,7 +89,13 @@ const createInvoice = async (req, res) => {
         let deposit = req.body.deposit;
         let description = req.body.description;
         let active = true;
-        let invoiceNumber = 0;
+        let respondeInvoice = await invoiceService.getLastNumberInvoice();
+
+        // Validar si se obtuvo respuesta de las reservas
+        if (!respondeInvoice.resp) return res.status(401).send({ resp: false, msg: 'No se obtuve el número de factura.' });
+
+        // Asignar nuevo número de factura
+        const invoiceNumber = respondeInvoice.msg + 1;
 
         // Validar si existe el cliente
         let exist = await commonService.getEntityKey(Customer, customerID);
@@ -103,16 +110,25 @@ const createInvoice = async (req, res) => {
         // Validar si existe la reserva
         exist = await commonService.getModel(Reserve, reserveID);
         if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}.` });
-        // Validar la reserva esta activa
+        // Validar si la reserva esta activa
         if (!exist.msg.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
+        // Validar si la reserva ya esta asociada a una factura
+        if (exist.msg.invoiceNumber !== 0) return res.status(400).send({ resp: false, msg: 'La reserva ya tiene una factura asociada.' });
         let reserveNumber = exist.msg.reserveNumber;
 
         let data = {
             customer, employee, reserveNumber, invoiceNumber, cost, deposit, description, active
         }
 
+        // Crear factura
         let invoice = Invoice.sanitize(data);
         let response = await commonService.createModel(Invoice, invoice);
+        if (!response.resp) return res.status(400).send(response);
+
+        // Actualizar reserva con número de factura
+        let dataReserve = { invoiceNumber };
+        response = await commonService.updateModel(Reserve, dataReserve, reserveID);
+
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {

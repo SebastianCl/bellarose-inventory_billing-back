@@ -6,22 +6,22 @@
 
 /**
 * @controller Servicio común
-* @description Script NODEJS que permite realizar operaciones CRUD sobre el modelo Reserve.
+* @description Script NODEJS que permite realizar operaciones CRUD sobre el modelo Invoice.
 */
 
 // Modelo
-const Reserve = require('../models/reserve.model');
+const Invoice = require('../models/invoice.model');
 
-// Obtener el último número registrado de una reserva
-const getLastNumberReserve = async () => {
+// Obtener el último número registrado de una factura
+const getLastNumberInvoice = async () => {
     let res = { resp: false, msg: {} };
 
-    const response = await Reserve.query()
-        .order('reserveNumber', { descending: true, })
+    const response = await Invoice.query()
+        .order('invoiceNumber', { descending: true, })
         .run();
     if (response.entities.length > 0) {
         res.resp = true;
-        res.msg = response.entities[0].reserveNumber;
+        res.msg = response.entities[0].invoiceNumber;
     } else {
         res.resp = true;
         res.msg = 'Sin resultados.';
@@ -30,5 +30,5 @@ const getLastNumberReserve = async () => {
 }
 
 module.exports = {
-    getLastNumberReserve
+    getLastNumberInvoice
 }
