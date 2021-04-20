@@ -15,7 +15,7 @@ const article_controller = require('../controllers/article.controller');
 
 
 /**************************
- * RUTAS DE ITEM    *
+ * RUTAS DE ARTÍCULOS    *
  **************************/
 router.post('/createArticle', article_controller.createArticle);
 router.get('/getArticles', article_controller.getArticles);

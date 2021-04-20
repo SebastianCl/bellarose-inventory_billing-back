@@ -15,14 +15,14 @@ const invoice_controller = require('../controllers/invoice.controller');
 
 
 /**************************
- * RUTAS DE ITEM    *
+ * RUTAS DE FACTURA    *
  **************************/
 router.post('/createInvoice', invoice_controller.createInvoice);
 router.get('/getInvoices', invoice_controller.getInvoices);
 router.get('/getInvoice', invoice_controller.getInvoice);
 router.put('/updateInvoice', invoice_controller.updateInvoice);
 router.delete('/deleteInvoice', invoice_controller.deleteInvoice);
-router.post('/findReservesWithFilter', invoice_controller.findReservesWithFilter);
+router.post('/findInvoiceWithFilter', invoice_controller.findInvoiceWithFilter);
 
 router.post('/test', invoice_controller.test);
 

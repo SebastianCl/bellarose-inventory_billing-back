@@ -38,12 +38,13 @@ const port = process.env.PORT || 3435;
 gcp.conectionDatastore();
 
 // Rutas API
-const user = require('./api/routes/user.route');
 const article = require('./api/routes/article.route');
-const employee = require('./api/routes/employee.route');
+const articleReserved = require('./api/routes/articleReserved.route');
 const customer = require('./api/routes/customer.route');
-const reserve = require('./api/routes/reserve.route');
+const employee = require('./api/routes/employee.route');
 const invoice = require('./api/routes/invoice.route');
+const reserve = require('./api/routes/reserve.route');
+const user = require('./api/routes/user.route');
 
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }));
@@ -55,12 +56,13 @@ app.use(cors(corsOptions));
 
 
 app.get('/', (req, res) => { res.send(`Bellarose API version ${config.version} in port: ${port}`); });
-app.use('/user', user);
 app.use('/article', article);
-app.use('/employee', employee);
+app.use('/articleReserved', articleReserved);
 app.use('/customer', customer);
-app.use('/reserve', reserve);
+app.use('/employee', employee);
 app.use('/invoice', invoice);
+app.use('/reserve', reserve);
+app.use('/user', user);
 
 app.listen(port, () => { console.log(`Server is up and running on port number ${port}`); });
 

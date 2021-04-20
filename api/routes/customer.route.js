@@ -15,7 +15,7 @@ const customer_controller = require('../controllers/customer.controller');
 
 
 /**************************
- * RUTAS DE ITEM    *
+ * RUTAS DE CLIENTE    *
  **************************/
 router.post('/createCustomer', customer_controller.createCustomer);
 router.get('/getCustomers', customer_controller.getCustomers);

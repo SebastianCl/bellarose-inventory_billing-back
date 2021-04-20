@@ -29,7 +29,7 @@ const getModel = async (Model, id) => {
         .populate()
         .then((entity) => {
             res.resp = true;
-            res.msg = entity;//.plain();
+            res.msg = entity.entityData;
         })
         .catch(err => { res.msg = err; })
     return res;

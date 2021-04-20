@@ -28,12 +28,10 @@ const articleSchema = new Schema({
     imageURL: { type: String, required: true },
     comments: { type: String, required: false },
     price: { type: Number, required: true },
-    quantity: { type: Number, required: true },
-    reserved: { type: Number, required: false },
-    available: { type: Boolean, required: true }
+    quantity: { type: Number, required: true }
 });
 
 articleSchema.queries('list');
 
-//Exporto el esquema de base de datos como 'Item'
+//Exporto el esquema de base de datos como 'Article'
 module.exports = gstore.model('Article', articleSchema);

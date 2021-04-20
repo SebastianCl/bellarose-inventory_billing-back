@@ -15,7 +15,7 @@ const customer_controller = require('../controllers/employee.controller');
 
 
 /**************************
- * RUTAS DE ITEM    *
+ * RUTAS DE EMPLEADO    *
  **************************/
 router.post('/createEmployee', customer_controller.createEmployee);
 router.get('/getEmployees', customer_controller.getEmployees);

@@ -25,12 +25,12 @@ const reserveSchema = new Schema({
     employeeName: { type: String, required: true },
     articles: [{ type: Array, read: true, required: true }],
     description: { type: String, required: false, default: '' },
-    active: { type: Boolean, required: false, default: true },
     reserveDay: { type: Date, required: false, default: gstore.defaultValues.NOW },
-    startDate: { type: String, required: true },
-    endDate: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
     reserveNumber: { type: Number, required: true },
-    invoiceNumber: { type: Number, required: false, default: 0 }
+    invoiceNumber: { type: Number, required: false, default: 0 },
+    active: { type: Boolean, required: false, default: true }
 });
 
 reserveSchema.queries('list');

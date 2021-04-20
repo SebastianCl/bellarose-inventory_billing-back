@@ -15,14 +15,14 @@ const reserve_controller = require('../controllers/reserve.controller');
 
 
 /**************************
- * RUTAS DE ITEM    *
+ * RUTAS DE RESERVA    *
  **************************/
 router.post('/createReserve', reserve_controller.createReserve);
 router.get('/getReserves', reserve_controller.getReserves);
 router.get('/getReserve', reserve_controller.getReserve);
 router.put('/updateReserve', reserve_controller.updateReserve);
 router.delete('/deleteReserve', reserve_controller.deleteReserve);
-router.post('/findReservesWithFilter', reserve_controller.findReservesWithFilter);
+router.post('/findReserveWithFilter', reserve_controller.findReserveWithFilter);
 router.post('/finishReserve', reserve_controller.finishReserve);
 
 module.exports = router;

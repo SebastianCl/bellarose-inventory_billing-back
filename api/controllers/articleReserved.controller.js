@@ -5,8 +5,8 @@
  */
 
 /**
-* @controller Controlador de article
-* @description Script NODEJS que permite realizar operaciones sobre los articles registrados. Utilizamos 
+* @controller Controlador de empleado
+* @description Script NODEJS que permite realizar operaciones sobre los empleados registrados. Utilizamos 
 *              como servicio la base de datos no relacional Google Cloud DataStore.
 */
 
@@ -14,32 +14,28 @@
  * INCIO DEPENDENCIAS     *
  **************************/
 // Modelo
-const Article = require('../models/article.model');
+const ArticleReserved = require('../models/articleReserved.model');
 // Servicio
 const commonService = require('../service/common.service');
-const articleService = require('../service/article.service');
-const storageService = require('../service/storage.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
-// Validaciones
-const validateData = require('../tools/validations/validateData'); // Scripts de validaciones>
 /**************************
  * FIN DEPENDENCIAS       *
  **************************/
 
 /**
- * @function getArticles
+ * @function getArticleReserveds
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite listar todas los articles
+ * @description Permite listar todas los artículos reservados
  */
-const getArticles = async (req, res) => {
+const getArticleReserveds = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let response = await commonService.getModels(Article);
+        let response = await commonService.getModels(ArticleReserved);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -49,81 +45,19 @@ const getArticles = async (req, res) => {
 };
 
 /**
- * @function getArticle
+ * @function getArticleReserved
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite obtener un articulo filtrado por ID.
+ * @description Permite obtener un artículo reservado filtrado por ID.
  */
-const getArticle = async (req, res) => {
-    try {
-        // Validar el token 
-        let resToken = auth.verifyToken(req);
-        if (!resToken.resp) return res.status(401).send(resToken);
-        let id = req.headers['id'];
-        const response = await commonService.getModel(Article, id);
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
-    }
-};
-
-/**
- * @function createArticle
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
- * @description Permite crear un articulo nueva en el DataStore
- */
-const createArticle = async (req, res) => {
-    try {
-        // Validar el token 
-        let resToken = auth.verifyToken(req);
-        if (!resToken.resp) return res.status(401).send(resToken);
-
-        let data = req.body;
-
-        // Validar si se envio imagen
-        let imageBase64 = data.imageBase64;
-        if (validateData.isEmpty(imageBase64)) return res.status(400).send({ resp: false, msg: 'Debe enviar la imagen.' });
-
-        let imageData = {
-            nameFile: data.reference,
-            routeFile: `${data.type}/${data.brand}/${data.color}/${data.size}`,
-            imageBase64
-        };
-
-        let respondeStorage = await storageService.uploadToStorage(imageData);
-        if (!respondeStorage.resp) return res.status(400).send(respondeStorage);
-
-
-        data.imageURL = respondeStorage.msg.msg;
-        let dataArticle = Article.sanitize(data);
-
-        let response = await commonService.createModel(Article, dataArticle);
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
-    }
-};
-
-/**
- * @function updateArticle
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
- * @description Permite actualizar un articulo especifico por ID
- */
-const updateArticle = async (req, res) => {
+const getArticleReserved = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let data = Article.sanitize(req.body);
-        let response = await commonService.updateModel(Article, data, id);
+        let response = await commonService.getModel(ArticleReserved, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -132,21 +66,66 @@ const updateArticle = async (req, res) => {
     }
 };
 
-
 /**
- * @function deleteArticle
+ * @function createArticleReserved
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite eliminar un articulo especifico por ID
+ * @description Permite crear un artículo reservado nueva en el DataStore
  */
-const deleteArticle = async (req, res) => {
+const createArticleReserved = async (req, res) => {
+    try {
+        // Validar el token 
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let data = ArticleReserved.sanitize(req.body);
+        let response = await commonService.createModel(ArticleReserved, data);
+        if (!response.resp) return res.status(400).send(response);
+        return res.status(200).send(response);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+};
+
+/**
+ * @function updateArticleReserved
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Permite actualizar un artículo reservado especifico por ID
+ */
+const updateArticleReserved = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let response = await commonService.deleteModel(Article, id);
+        let data = ArticleReserved.sanitize(req.body);
+        let response = await commonService.updateModel(ArticleReserved, data, id);
+        if (!response.resp) return res.status(400).send(response);
+        return res.status(200).send(response);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+};
+
+
+/**
+ * @function deleteArticleReserved
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Permite eliminar un artículo reservado especifico por ID
+ */
+const deleteArticleReserved = async (req, res) => {
+    try {
+        // Validar el token 
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let id = req.headers['id'];
+        let response = await commonService.deleteModel(ArticleReserved, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -156,12 +135,12 @@ const deleteArticle = async (req, res) => {
 };
 
 /**
- * @function findArticlesWithFilter
+ * @function findArticleReservedsWithFilter
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Busca los registro de articles por filtro
+ * @description Busca los registro de artículos reservados por filtro
  */
-const findArticlesWithFilter = async (req, res) => {
+const findArticleReservedsWithFilter = async (req, res) => {
     try {
         // Validar el token
         let resToken = auth.verifyToken(req);
@@ -170,36 +149,33 @@ const findArticlesWithFilter = async (req, res) => {
         let options = req.body;
         let filter = { filters: [] };
 
-        if (options.type !== undefined && options.type !== "") {
-            filter.filters.push(['type', options.type])
-        }
         if (options.reference !== undefined && options.reference !== "") {
             filter.filters.push(['reference', options.reference])
         }
-        if (options.brand !== undefined && options.brand !== "") {
-            filter.filters.push(['brand', options.brand])
+        if (options.dateInit !== undefined && options.dateInit !== "") {
+            filter.filters.push(['dateInit', options.dateInit])
         }
-        if (options.color !== undefined && options.color !== "") {
-            filter.filters.push(['color', options.color])
+        if (options.dateEnd !== undefined && options.dateEnd !== "") {
+            filter.filters.push(['dateEnd', options.dateEnd])
         }
-        if (options.size !== undefined && options.size !== "") {
-            filter.filters.push(['size', options.size])
+        if (options.active !== undefined && options.active !== "") {
+            filter.filters.push(['active', options.active])
         }
 
-        const articleList = await commonService.listModelsWithFilter(Article, filter);
-        res.status(200).send(articleList);
+        const articleReservedList = await commonService.listModelsWithFilter(ArticleReserved, filter);
+        res.status(200).send(articleReservedList);
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ resp: false, msg: error.message });
     }
 }
 
-//Exportar funciones
+// Exportar funciones
 module.exports = {
-    getArticles,
-    getArticle,
-    createArticle,
-    updateArticle,
-    deleteArticle,
-    findArticlesWithFilter
+    getArticleReserveds,
+    getArticleReserved,
+    createArticleReserved,
+    updateArticleReserved,
+    deleteArticleReserved,
+    findArticleReservedsWithFilter
 };

@@ -16,6 +16,7 @@
 // Modelo
 const Reserve = require('../models/reserve.model');
 const Article = require('../models/article.model');
+const ArticleReserved = require('../models/articleReserved.model');
 // Servicio
 const commonService = require('../service/common.service');
 const reserveService = require('../service/reserve.service');
@@ -104,9 +105,13 @@ const createReserve = async (req, res) => {
         // Validar si se envio los artículos
         if (validateData.isEmpty(articles) || articles.length == 0) return res.status(400).send({ resp: false, msg: 'Debe indicar los artículos.' });
 
+        // Asignar formato de fecha
+        startDate = new Date(startDate);
+        endDate = new Date(endDate);
+
         let allBad = [];
-        let allDataArticle = [];
-        // Validar si el item existe o esta disponible
+        let allId_AR = [];
+        // Validar si el artículo existe o esta disponible
         for (let index = 0; index < articles.length; index++) {
             const reference = articles[index];
 
@@ -119,61 +124,71 @@ const createReserve = async (req, res) => {
             }
             else {
                 const articleData = exist.msg[0];
-                // Validar si el artículo esta disponible
-                if (!articleData.available) {
-                    allBad.push({ reference, motive: 'No hay artículos disponibles con la referencia indicada.' });
+                // Validar si hay artículos disponibles
+                if (articleData.quantity === 0) {
+                    let filterAR = { filters: [] };
+                    filterAR.filters.push(['reference', articleData.reference]);
+                    filterAR.filters.push(['active', true]);
+                    let responseEdgeDate = await commonService.listModelsWithFilter(ArticleReserved, filterAR);
+                    if (!responseEdgeDate.resp) return res.status(400).send({ resp: false, msg: 'Fallo al buscar el artículo reservado.' });
+
+                    let listAR = responseEdgeDate.msg;
+
+                    // Ordenar lista ascendente
+                    const listARorder = listAR.sort((a, b) => a.dateEnd - b.dateEnd);
+                    const edgeDate = listARorder[0].dateEnd; // Fecha más cercana en que se devolvera el artículo
+                    allBad.push({ reference, edgeDate });
                 }
                 else {
-                    allDataArticle.push(articleData);
+                    const dataArticleReserved = { reference: articleData.reference, dateInit: startDate, dateEnd: endDate };
+                    let isCreateAR = await createAR(articleData, dataArticleReserved);
+                    if (!isCreateAR.resp) return res.status(400).send(isCreateAR);
+                    const idAR = isCreateAR.msg.id;
+                    allId_AR.push(idAR);
                 }
             }
         }
 
         if (allBad.length > 0) return res.status(400).send({ resp: false, msg: allBad });
+        //TODO: Borrar registros de artículos reservados
 
         // Obtener número de reserva
         let respondeReserve = await reserveService.getLastNumberReserve();
+        if (!respondeReserve.resp) return res.status(401).send({ resp: false, msg: 'No se obtuvo el número de reserva.' });
 
-        // Validar si se obtuvo respuesta de las reservas
-        if (!respondeReserve.resp) return res.status(401).send({ resp: false, msg: 'No se obtuve el número de reserva.' });
-
-        const reserveNumber = respondeReserve.msg + 1;
+        const reserveNumber = respondeReserve.msg + 1; // Asginar nuevo número de reserva
         // Completar datos y crear reserva
         const newReserve = {
             customerName, customerID, employeeName, startDate, endDate,
             reserveNumber,
-            articles: allDataArticle
+            articles: allId_AR
         };
-        let response = await commonService.createModel(Reserve, newReserve);
+        let createdReserve = await commonService.createModel(Reserve, newReserve);
+        if (!createdReserve.resp) return res.status(400).send(createdReserve);
 
-        // Validar si se registro la reserva
-        if (!response.resp) return res.status(400).send(response);
-
-        // Actualizar los artículos
-        for (let index = 0; index < allDataArticle.length; index++) {
-            const item = allDataArticle[index];
-            const itemID = item.id;
-
-            let quantity = item.quantity - 1;
-            let available = true;
-            if (quantity === 0) available = false;
-            let itemNewData = { quantity, available };
-
-            // Actualizar registros
-            let updated = await commonService.updateModel(Article, itemNewData, itemID);
-
-            // Validar si se actualizo el item
-            if (!updated.resp) return res.status(400).send({ resp: false, msg: allBad });
-            // TODO: Asegurar que los artículos que no se actualizarón, se actualicen
-        }
-
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
+        return res.status(200).send(createdReserve);
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ resp: false, msg: error.message });
     }
 };
+
+async function createAR(article, dataArticleReserved) {
+    const articleID = article.id;
+
+    const quantity = article.quantity - 1;
+    let articleNewData = { quantity };
+
+    // Actualizar registros
+    const updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
+    if (!updatedArticle.resp) return updatedArticle;
+
+    // Crear registro de artículo reservado
+    const dataAR = dataArticleReserved;
+    let createdAR = await commonService.createModel(ArticleReserved, dataAR);
+
+    return createdAR;
+}
 
 /**
  * @function finishReserve
@@ -193,29 +208,35 @@ const finishReserve = async (req, res) => {
         let respReserve = await commonService.getModel(Reserve, id);
         if (!respReserve.resp) return res.status(400).send(respReserve);
 
-        let articles = respReserve.msg.entityData.articles;
+        let articles = respReserve.msg.articles;
 
-        // Regresar artículos al inventario
+        // Regresar artículos al inventario y desactivar artículo reservado
         for (let index = 0; index < articles.length; index++) {
-            const dataArticle = articles[index];
-            const reference = dataArticle.reference;
+            const id_AR = articles[index];
 
-            // Validar si existe el item
-            let filter = { filters: ['reference', reference] };
+            // Validar si existe el artículo reservado            
+            let responseAR = await commonService.getModel(ArticleReserved, id_AR);
+            if (!responseAR.resp) return res.status(400).send(responseAR);
+
+
+            // Buscar artículo por referencia
+            let filter = { filters: ['reference', responseAR.msg.reference] };
             let resArticle = await commonService.listModelsWithFilter(Article, filter);
             if (!resArticle.resp) return res.status(400).send(resArticle);
 
-            let item = resArticle.msg[0];
-            let itemID = item.id;
-            let quantity = item.quantity + 1;
-            let available = true;
-            let itemNewData = { quantity, available };
+            let article = resArticle.msg[0];
+            let articleID = article.id;
+            let quantity = article.quantity + 1;
+            let articleNewData = { quantity };
 
-            // Actualizar registros
-            let updated = await commonService.updateModel(Article, itemNewData, itemID);
+            // Regresar artículo al inventario
+            let updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
+            if (!updatedArticle.resp) return res.status(400).send(updatedArticle);
 
-            // Validar si se actualizo el item
-            if (!updated.resp) return res.status(400).send({ resp: false, msg: allBad });
+            // Desactivar artículo reservado
+            const AR_NewData = { active: false };
+            let updatedAR = await commonService.updateModel(ArticleReserved, AR_NewData, id_AR);
+            if (!updatedAR.resp) return res.status(400).send(updatedAR);
         }
 
         // Deshabilitar reserva
@@ -277,12 +298,12 @@ const deleteReserve = async (req, res) => {
 };
 
 /**
- * @function findReservesWithFilter
+ * @function findReserveWithFilter
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
  * @description Busca los registro de reserves por filtro
  */
-const findReservesWithFilter = async (req, res) => {
+const findReserveWithFilter = async (req, res) => {
     try {
         // Validar el token
         let resToken = auth.verifyToken(req);
@@ -325,6 +346,6 @@ module.exports = {
     createReserve,
     updateReserve,
     deleteReserve,
-    findReservesWithFilter,
+    findReserveWithFilter,
     finishReserve
 };

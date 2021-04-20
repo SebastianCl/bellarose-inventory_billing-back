@@ -89,10 +89,11 @@ const createInvoice = async (req, res) => {
         let deposit = req.body.deposit;
         let description = req.body.description;
         let active = true;
-        let respondeInvoice = await invoiceService.getLastNumberInvoice();
 
+        // Obtener último número de factura
+        let respondeInvoice = await invoiceService.getLastNumberInvoice();
         // Validar si se obtuvo respuesta de las reservas
-        if (!respondeInvoice.resp) return res.status(401).send({ resp: false, msg: 'No se obtuve el número de factura.' });
+        if (!respondeInvoice.resp) return res.status(401).send({ resp: false, msg: 'No se obtuve el último número de factura.' });
 
         // Asignar nuevo número de factura
         const invoiceNumber = respondeInvoice.msg + 1;
@@ -112,7 +113,7 @@ const createInvoice = async (req, res) => {
         if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}.` });
         // Validar si la reserva esta activa
         if (!exist.msg.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
-        // Validar si la reserva ya esta asociada a una factura
+        // Validar si la reserva esta asociada a una factura
         if (exist.msg.invoiceNumber !== 0) return res.status(400).send({ resp: false, msg: 'La reserva ya tiene una factura asociada.' });
         let reserveNumber = exist.msg.reserveNumber;
 
@@ -161,28 +162,6 @@ const updateInvoice = async (req, res) => {
 };
 
 
-
-const test = async (req, res) => {
-    try {
-        /*
-        const query = await Invoice.query()
-            .filter('__key__', '>', Invoice.key(['Customer', '5080330100801536']))
-            .run();*/
-
-        const query = await Invoice.query()
-            .filter('__key__', '=', 5632499082330112)
-            .limit(1)
-            .run();
-
-        console.log(query);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
-    }
-}
-
-
-
 /**
  * @function deleteInvoice
  * @param {Request} req Obtener parametros de cabecera
@@ -206,12 +185,12 @@ const deleteInvoice = async (req, res) => {
 };
 
 /**
- * @function findReservesWithFilter
+ * @function findInvoiceWithFilter
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
  * @description Busca los registro de facturas por filtro
  */
-const findReservesWithFilter = async (req, res) => {
+const findInvoiceWithFilter = async (req, res) => {
     try {
         // Validar el token
         let resToken = auth.verifyToken(req);
@@ -247,6 +226,28 @@ const findReservesWithFilter = async (req, res) => {
     }
 }
 
+
+
+const test = async (req, res) => {
+    try {
+        /*
+        const query = await Invoice.query()
+            .filter('__key__', '>', Invoice.key(['Customer', '5080330100801536']))
+            .run();*/
+
+        const query = await Invoice.query()
+            .filter('__key__', '=', 5632499082330112)
+            .limit(1)
+            .run();
+
+        console.log(query);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+}
+
+
 // Exportar funciones
 module.exports = {
     getInvoice,
@@ -254,6 +255,6 @@ module.exports = {
     createInvoice,
     updateInvoice,
     deleteInvoice,
-    findReservesWithFilter,
+    findInvoiceWithFilter,
     test
 };
