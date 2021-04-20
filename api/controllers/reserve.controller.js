@@ -92,18 +92,20 @@ const createReserve = async (req, res) => {
         let endDate = data.endDate;
         let articles = data.articles;
 
+        let typeNum = 0; // Tipo de fallo al crear reserva
+
         // Validar si se envio el nombre del cliente
-        if (validateData.isEmpty(customerName)) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del cliente.' });
+        if (validateData.isEmpty(customerName)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar el nombre del cliente.' });
         // Validar si se envio el nombre del cliente
-        if (validateData.isEmpty(customerID)) return res.status(400).send({ resp: false, msg: 'Debe indicar la identificación del cliente.' });
+        if (validateData.isEmpty(customerID)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la identificación del cliente.' });
         // Validar si se envio el nombre del empleado
-        if (validateData.isEmpty(employeeName)) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del empleado.' });
+        if (validateData.isEmpty(employeeName)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar el nombre del empleado.' });
         // Validar si se envio la fecha de inicio de la reserva
-        if (validateData.isEmpty(startDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la fecha de inicio de la reserva.' });
+        if (validateData.isEmpty(startDate)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la fecha de inicio de la reserva.' });
         // Validar si se envio la fecha fin de la reserva
-        if (validateData.isEmpty(endDate)) return res.status(400).send({ resp: false, msg: 'Debe indicar la fecha fin de la reserva.' });
+        if (validateData.isEmpty(endDate)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la fecha fin de la reserva.' });
         // Validar si se envio los artículos
-        if (validateData.isEmpty(articles) || articles.length == 0) return res.status(400).send({ resp: false, msg: 'Debe indicar los artículos.' });
+        if (validateData.isEmpty(articles) || articles.length == 0) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar los artículos.' });
 
         // Asignar formato de fecha
         startDate = new Date(startDate);
@@ -121,6 +123,8 @@ const createReserve = async (req, res) => {
             // Validar si el artículo existe
             if (!exist.resp) {
                 allBad.push({ reference, motive: 'No existe artículo con la referencia indicada.' });
+                typeNum = 1;
+                break;
             }
             else {
                 const articleData = exist.msg[0];
@@ -129,15 +133,17 @@ const createReserve = async (req, res) => {
                     let filterAR = { filters: [] };
                     filterAR.filters.push(['reference', articleData.reference]);
                     filterAR.filters.push(['active', true]);
-                    let responseEdgeDate = await commonService.listModelsWithFilter(ArticleReserved, filterAR);
-                    if (!responseEdgeDate.resp) return res.status(400).send({ resp: false, msg: 'Fallo al buscar el artículo reservado.' });
+                    let responseearlyDate = await commonService.listModelsWithFilter(ArticleReserved, filterAR);
+                    if (!responseearlyDate.resp) return res.status(400).send({ resp: false, msg: 'Fallo al buscar el artículo reservado.' });
 
-                    let listAR = responseEdgeDate.msg;
+                    let listAR = responseearlyDate.msg;
 
                     // Ordenar lista ascendente
                     const listARorder = listAR.sort((a, b) => a.dateEnd - b.dateEnd);
-                    const edgeDate = listARorder[0].dateEnd; // Fecha más cercana en que se devolvera el artículo
-                    allBad.push({ reference, edgeDate });
+                    const earlyDate = listARorder[0].dateEnd; // Fecha más cercana en que se devolvera el artículo
+                    allBad.push({ reference, earlyDate });
+                    typeNum = 2;
+                    break;
                 }
                 else {
                     const dataArticleReserved = { reference: articleData.reference, dateInit: startDate, dateEnd: endDate };
@@ -149,14 +155,22 @@ const createReserve = async (req, res) => {
             }
         }
 
-        if (allBad.length > 0) return res.status(400).send({ resp: false, msg: allBad });
-        //TODO: Borrar registros de artículos reservados
+        if (allBad.length > 0) {
+            if (typeNum === 2) {
+                for (let index = 0; index < allId_AR.length; index++) {
+                    const id_AR = allId_AR[index];
+                    // Eliminar registros de artículos reservados
+                    await returnArticles(id_AR, true);
+                }
+            }
+            return res.status(400).send({ resp: false, type: typeNum, msg: allBad });
+        }
 
         // Obtener número de reserva
         let respondeReserve = await reserveService.getLastNumberReserve();
-        if (!respondeReserve.resp) return res.status(401).send({ resp: false, msg: 'No se obtuvo el número de reserva.' });
+        if (!respondeReserve.resp) return res.status(401).send({ resp: false, typeNum: 3, msg: 'No se obtuvo el número de reserva.' });
 
-        const reserveNumber = respondeReserve.msg + 1; // Asginar nuevo número de reserva
+        const reserveNumber = respondeReserve.msg + 1; // Asignar nuevo número de reserva
         // Completar datos y crear reserva
         const newReserve = {
             customerName, customerID, employeeName, startDate, endDate,
@@ -164,7 +178,7 @@ const createReserve = async (req, res) => {
             articles: allId_AR
         };
         let createdReserve = await commonService.createModel(Reserve, newReserve);
-        if (!createdReserve.resp) return res.status(400).send(createdReserve);
+        if (!createdReserve.resp) return res.status(400).send({ resp: false, typeNum: 4, msg: createdReserve.msg });
 
         return res.status(200).send(createdReserve);
     } catch (error) {
@@ -214,29 +228,9 @@ const finishReserve = async (req, res) => {
         for (let index = 0; index < articles.length; index++) {
             const id_AR = articles[index];
 
-            // Validar si existe el artículo reservado            
-            let responseAR = await commonService.getModel(ArticleReserved, id_AR);
-            if (!responseAR.resp) return res.status(400).send(responseAR);
-
-
-            // Buscar artículo por referencia
-            let filter = { filters: ['reference', responseAR.msg.reference] };
-            let resArticle = await commonService.listModelsWithFilter(Article, filter);
-            if (!resArticle.resp) return res.status(400).send(resArticle);
-
-            let article = resArticle.msg[0];
-            let articleID = article.id;
-            let quantity = article.quantity + 1;
-            let articleNewData = { quantity };
-
-            // Regresar artículo al inventario
-            let updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
-            if (!updatedArticle.resp) return res.status(400).send(updatedArticle);
-
-            // Desactivar artículo reservado
-            const AR_NewData = { active: false };
-            let updatedAR = await commonService.updateModel(ArticleReserved, AR_NewData, id_AR);
-            if (!updatedAR.resp) return res.status(400).send(updatedAR);
+            // Devolver artículos
+            let updatesArticle = await returnArticles(id_AR, false);
+            if (!updatesArticle.resp) return res.status(400).send(updatesArticle);
         }
 
         // Deshabilitar reserva
@@ -250,6 +244,38 @@ const finishReserve = async (req, res) => {
         res.status(500).send({ resp: false, msg: error.message });
     }
 };
+
+// Devolver artículos al inventario
+async function returnArticles(id_AR, isDelete) {
+    // Validar si existe el artículo reservado            
+    let responseAR = await commonService.getModel(ArticleReserved, id_AR);
+    if (!responseAR.resp) return responseAR;
+
+    // Buscar artículo por referencia
+    let filter = { filters: ['reference', responseAR.msg.reference] };
+    let resArticle = await commonService.listModelsWithFilter(Article, filter);
+    if (!resArticle.resp) return resArticle;
+
+    if (!isDelete) {
+        let article = resArticle.msg[0];
+        let articleID = article.id;
+        let quantity = article.quantity + 1;
+        let articleNewData = { quantity };
+
+        // Regresar artículo al inventario
+        let updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
+        if (!updatedArticle.resp) return updatedArticle;
+
+        // Desactivar artículo reservado
+        const AR_NewData = { active: false };
+        let updatedAR = await commonService.updateModel(ArticleReserved, AR_NewData, id_AR);
+        return updatedAR;
+    } else {
+        // Eliminar artículo reservado
+        let deleteAR = await commonService.deleteModel(ArticleReserved, id_AR);
+        return deleteAR;
+    }
+}
 
 /**
  * @function updateReserve
