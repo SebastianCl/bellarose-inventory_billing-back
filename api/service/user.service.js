@@ -53,8 +53,8 @@ async function hashPassword(password) {
         bcrypt.genSalt(5, function onSalt(err, salt) {
             if (err) return reject(err);
             bcrypt.hash(password, salt, null,
-                function onHash(err, hash) {
-                    if (err) return reject(err);
+                function onHash(error, hash) {
+                    if (error) return reject(error);
                     return resolve(hash);
                 });
         });
@@ -68,14 +68,14 @@ async function processRol(dataRole) {
     let userData = {};
     let roleId = dataRole; // Obtener el id del rol
 
-    let role = await commonService.getModel(Role, roleId);
-    if (role.resp === false) {
+    let role = await commonService.getEntityKey(Role, roleId);
+    if (!role.resp) {
         res.msg = { resp: false, msg: `El rol con id ${roleId} no existe.` };
         return res;
     }
 
     // Asignar la entidad rol como una propiedad del usuario
-    userData.role = role.msg.entityKey;
+    userData.role = role.msg;
     res.code = 200;
     res.msg = userData;
     return res;
@@ -116,7 +116,7 @@ const createUser = async (data) => {
 
 const updateUser = async (data, id) => {
     let res = { code: 0, resp: false, msg: {} };
-    var newUserData = data;
+    let newUserData = data;
     // Si se recibe una contraseña se encripta
     if (data.password) {
         let hash = await hashPassword(data.password);

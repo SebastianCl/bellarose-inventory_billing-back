@@ -92,11 +92,21 @@ const listModelsWithFilter = async (Model, filter) => {
 const getEntityKey = async (Model, id) => {
     let res = { resp: false, msg: `El registro con id ${id} no existe.` };
 
-    let model = await getModel(Model, id);
-    if (!model.resp) return res;
+    let entityKey;
+    let getkey = new Promise(async (resolve, reject) => {
+        await Model.get(id)
+            .populate()
+            .then((entity) => {
+                entityKey = entity.entityKey;
+                return resolve(entityKey);
+            })
+            .catch(err => {
+                return reject(res);
+            });
+    });
+    await getkey;
 
-    // Obtener entityKey
-    let entityKey = model.msg.entityKey;
+    if (!getkey) return res;
 
     res.resp = true;
     res.msg = entityKey

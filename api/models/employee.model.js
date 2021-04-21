@@ -21,11 +21,10 @@ const { Schema } = gstore;
 */
 const employeeSchema = new Schema({
     name: { type: String, read: true, required: true },
-    identification: { type: Number, read: true, required: true }, // cédula
-    direction: { type: String, read: true, required: false },
-    email: { type: String, read: true, required: false, validate: 'isEmail' },
-    password: { type: String, read: true, required: true },
-    telephone: { type: Number, read: true, required: false },
+    identification: { type: String, read: true, required: true }, // cédula
+    direction: { type: String, read: true, required: false, default: '' },
+    email: { type: String, read: true, required: false, validate: 'isEmail', default: '' },
+    telephone: { type: String, read: true, required: false, default: '' },
     active: { type: Boolean, read: true, required: true }
 });
 

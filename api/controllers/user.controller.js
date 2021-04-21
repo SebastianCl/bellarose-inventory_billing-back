@@ -14,6 +14,7 @@
  * INCIO DEPENDENCIAS     *
  **************************/
 const User = require('../models/user.model');
+const Role = require('../models/role.model');
 /**************************
  * FIN DEPENDENCIAS       *
  **************************/
@@ -56,25 +57,26 @@ const createUser = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let response = {};
-        let email = req.body.email;
-        let role = req.body.role;
-        let password = req.body.password;
-        // Valida el email 
+        let data = req.body;
+        let email = data.email;
+        let role = data.role;
+        let password = data.password;
+        // Validar el email 
         if (email === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el email del usuario.' });
-        // Valida el rol
+        // Validar el rol
         if (role === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el rol del usuario.' });
-        // Valida el email 
+        // Validar el email 
         if (password === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar la clave del usuario.' });
         // Buscar si existe un usuario registrado con el correo enviado
         let user = await userService.findByEmail(email);
         if (user.length > 0) return res.status(400).send({ resp: false, msg: `El email ${email} esta en uso.` });
 
-        const entityData = User.sanitize(req.body);
+        const entityData = User.sanitize(data);
         response = await userService.createUser(entityData);
         res.status(response.code).send({ resp: response.resp, msg: response.msg });
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        res.status(500).send({ resp: false, msg: error.message || error.msg });
     }
 };
 
@@ -192,7 +194,7 @@ const getRoles = async (req, res) => {
         return res.status(200).send(roleList);
     } catch (error) {
         console.log(error.message);
-        return res.status(500).send(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
@@ -210,7 +212,7 @@ const getRole = async (req, res) => {
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
-        return res.status(500).send(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
@@ -227,7 +229,7 @@ const createRole = async (req, res) => {
         return res.status(200).send(role);
     } catch (error) {
         console.log(error.message);
-        return res.status(500).send(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
@@ -245,7 +247,7 @@ const deleteRole = async (req, res) => {
         return res.status(200).send(user);
     } catch (error) {
         console.log(error.message);
-        return res.status(500).send(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
     }
 };
 

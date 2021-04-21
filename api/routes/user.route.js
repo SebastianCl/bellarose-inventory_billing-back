@@ -18,10 +18,19 @@ const user_controller = require('../controllers/user.controller');
  * RUTAS DE USUARIO    *
  **************************/
 router.post('/login', user_controller.getLogin);
-router.post('/create', user_controller.createUser);
+router.post('/createUser', user_controller.createUser);
 router.get('/getUsers', user_controller.getUsers);
 router.get('/getUser', user_controller.getUser);
 router.put('/updateUser', user_controller.updateUser);
 router.delete('/deleteUser', user_controller.deleteUser);
+
+
+/**************************
+ * RUTAS DE ROL    *
+ **************************/
+router.post('/createRole', user_controller.createRole);
+router.get('/getRoles', user_controller.getRoles);
+router.get('/getRole', user_controller.getRole);
+router.delete('/deleteRole', user_controller.deleteRole);
 
 module.exports = router;
