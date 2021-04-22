@@ -22,6 +22,9 @@ const { Schema } = gstore;
 const invoiceSchema = new Schema({
     customer: { type: Schema.Types.Key, read: true, ref: 'Customer', required: true },
     employee: { type: Schema.Types.Key, read: true, ref: 'Employee', required: true },
+    customerName: { type: String, required: true },
+    customerID: { type: String, required: true },
+    employeeName: { type: String, required: true },
     reserveNumber: { type: Number, required: true },
     invoiceNumber: { type: Number, required: true },
     cost: { type: Number, read: true, required: true },

@@ -78,7 +78,15 @@ const createEmployee = async (req, res) => {
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let data = Employee.sanitize(req.body);
+        let employeeData = req.body;
+        let employeeID = employeeData.identification;
+        if (employeeID === undefined) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la cédula del empleado.' });
+
+        let filter = { filters: ['identification', employeeID] };
+        let respemployee = await commonService.listModelsWithFilter(Employee, filter);
+        if (respemployee.resp) return res.status(400).send({ resp: false, msg: `Ya existe un empleado registrado con cédula: ${employeeID}` });
+
+        let data = Employee.sanitize(employeeData);
         let response = await commonService.createModel(Employee, data);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);

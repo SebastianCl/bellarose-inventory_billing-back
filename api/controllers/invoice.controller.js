@@ -115,10 +115,14 @@ const createInvoice = async (req, res) => {
         if (!exist.msg.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
         // Validar si la reserva esta asociada a una factura
         if (exist.msg.invoiceNumber !== 0) return res.status(400).send({ resp: false, msg: 'La reserva ya tiene una factura asociada.' });
-        let reserveNumber = exist.msg.reserveNumber;
+        const dataReserve = exist.msg;
+        let reserveNumber = dataReserve.reserveNumber;
+        let customerName = dataReserve.customerName;
+        let employeeName = dataReserve.employeeName;
 
         let data = {
-            customer, employee, reserveNumber, invoiceNumber, cost, deposit, description, active
+            customer, employee, customerName, customerID, employeeName, reserveNumber, invoiceNumber,
+            cost, deposit, description, active
         }
 
         // Crear factura
@@ -127,8 +131,8 @@ const createInvoice = async (req, res) => {
         if (!response.resp) return res.status(400).send(response);
 
         // Actualizar reserva con número de factura
-        let dataReserve = { invoiceNumber };
-        response = await commonService.updateModel(Reserve, dataReserve, reserveID);
+        let newDataReserve = { invoiceNumber };
+        response = await commonService.updateModel(Reserve, newDataReserve, reserveID);
 
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);

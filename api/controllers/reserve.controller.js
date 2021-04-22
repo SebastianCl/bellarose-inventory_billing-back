@@ -216,13 +216,23 @@ const finishReserve = async (req, res) => {
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let id = req.headers['id'];
+        let reserveNumber = req.body.reserveNumber;
+
+        // Validar si envio el número de reserva
+        if (validateData.isEmpty(reserveNumber)) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de reserva.' });
 
         // Validar si existe la reserva
-        let respReserve = await commonService.getModel(Reserve, id);
+        let filter = { filters: ['reserveNumber', reserveNumber] };
+        let respReserve = await commonService.listModelsWithFilter(Reserve, filter);
         if (!respReserve.resp) return res.status(400).send(respReserve);
 
-        let articles = respReserve.msg.articles;
+        let dataReserve = respReserve.msg[0];
+        let id = dataReserve.id;
+        let active = dataReserve.active;
+        let articles = dataReserve.articles;
+
+        // Validar si esta activa
+        if (!active) return res.status(400).send({ resp: false, msg: 'La reserva no esta activa.' });
 
         // Regresar artículos al inventario y desactivar artículo reservado
         for (let index = 0; index < articles.length; index++) {
@@ -235,8 +245,7 @@ const finishReserve = async (req, res) => {
 
         // Deshabilitar reserva
         let newData = { active: false };
-        let data = Reserve.sanitize(newData);
-        let response = await commonService.updateModel(Reserve, data, id);
+        let response = await commonService.updateModel(Reserve, newData, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {

@@ -78,7 +78,15 @@ const createCustomer = async (req, res) => {
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let data = Customer.sanitize(req.body);
+        let customerData = req.body;
+        let customerID = customerData.identification;
+        if (customerID === undefined) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la cédula del cliente.' });
+
+        let filter = { filters: ['identification', customerID] };
+        let respCustomer = await commonService.listModelsWithFilter(Customer, filter);
+        if (respCustomer.resp) return res.status(400).send({ resp: false, msg: `Ya existe un cliente registrado con cédula: ${customerID}` });
+
+        let data = Customer.sanitize(customerData);
         let response = await commonService.createModel(Customer, data);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
