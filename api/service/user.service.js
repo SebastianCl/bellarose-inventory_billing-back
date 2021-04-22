@@ -21,13 +21,13 @@ const getLogin = async (email, password) => {
     // Valida si se devolvio un usuario
     if (listUser.resp === false) {
         res.code = 400;
-        res.msg = { resp: false, msg: "Unregistered user." }
+        res.msg = { resp: false, msg: "No existe el usuario." }
         return res;
     }
 
     if (listUser.msg[0].active === false) {
         res.code = 200;
-        res.msg = { resp: false, msg: "Inactive User." }
+        res.msg = { resp: false, msg: "Usuario inactivo." }
         return res;
     }
 

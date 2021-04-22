@@ -93,7 +93,7 @@ const createInvoice = async (req, res) => {
         // Obtener último número de factura
         let respondeInvoice = await invoiceService.getLastNumberInvoice();
         // Validar si se obtuvo respuesta de las reservas
-        if (!respondeInvoice.resp) return res.status(401).send({ resp: false, msg: 'No se obtuve el último número de factura.' });
+        if (!respondeInvoice.resp) return res.status(400).send({ resp: false, msg: 'No se obtuvo el último número de factura.' });
 
         // Asignar nuevo número de factura
         const invoiceNumber = respondeInvoice.msg + 1;
@@ -150,9 +150,43 @@ const updateInvoice = async (req, res) => {
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let id = req.headers['id'];
-        let data = Invoice.sanitize(req.body);
-        let response = await commonService.updateModel(Invoice, data, id);
+        let invoiceNumber = req.body.invoiceNumber;
+        let payment = req.body.payment;
+
+        // Validar datos
+        if (invoiceNumber === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la factura.' });
+        if (payment === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el abono de la factura.' });
+
+
+        let filter = { filters: [] };
+        filter.filters.push(['invoiceNumber', invoiceNumber]);
+
+        // Buscar si existe factura con el número enviado
+        let respIsInvoice = await commonService.listModelsWithFilter(Invoice, filter);
+        if (!respIsInvoice.resp) return res.status(400).send({ resp: false, msg: `No existe la factura ${invoiceNumber}.` });
+
+        let invoiceData = respIsInvoice.msg[0]; // Datos de factura
+
+        // Validar si la factura esta activa
+        if (!invoiceData.active) return res.status(400).send({ resp: false, msg: `La factura ${invoiceNumber} esta inactiva.` });
+
+        let id = invoiceData.id;
+        let total = invoiceData.cost;
+        let lastPayment = invoiceData.deposit;
+        let remaining = total - lastPayment;
+        let active = true;
+
+        // Validar si el pago sobrepasa lo faltante
+        if (payment > remaining) return res.status(400).send({ resp: false, msg: 'Sobrepasa el total de la factura.' });
+
+        let newPayment = lastPayment + payment; // Sumar ultimo pago con el nuevo deposito
+
+        if (total === newPayment) active = false; // Desactivar factura si se completo el pago total
+
+        let newDataInvoice = { deposit: newPayment, active };
+
+        // Actualizar factura
+        let response = await commonService.updateModel(Invoice, newDataInvoice, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {

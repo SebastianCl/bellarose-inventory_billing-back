@@ -23,10 +23,10 @@ const customerSchema = new Schema({
     name: { type: String, read: true, required: true },
     identification: { type: String, read: true, required: true }, // cédula
     direction: { type: String, read: true, required: true },
-    email: { type: String, read: true, required: false, validate: 'isEmail' },
-    telephone1: { type: String, read: true, required: false },
-    telephone2: { type: String, read: true, required: false },
-    telephone3: { type: String, read: true, required: false }
+    email: { type: String, read: true, required: false, validate: 'isEmail', default: '' },
+    telephone1: { type: String, read: true, required: true },
+    telephone2: { type: String, read: true, required: true },
+    telephone3: { type: String, read: true, required: false, default: '' }
 });
 
 // Exporto el esquema de base de datos como 'Customer'
