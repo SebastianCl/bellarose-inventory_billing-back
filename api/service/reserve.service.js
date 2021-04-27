@@ -14,19 +14,23 @@ const Reserve = require('../models/reserve.model');
 
 // Obtener el último número registrado de una reserva
 const getLastNumberReserve = async () => {
-    let res = { resp: false, msg: {} };
+    try {
+        let res = { resp: true, msg: 0 };
 
-    const response = await Reserve.query()
-        .order('reserveNumber', { descending: true, })
-        .run();
-    if (response.entities.length > 0) {
-        res.resp = true;
-        res.msg = response.entities[0].reserveNumber;
-    } else {
-        res.resp = true;
-        res.msg = 'Sin resultados.';
+        const response = await Reserve.query()
+            .order('reserveNumber', { descending: true, })
+            .run();
+        if (response.entities.length > 0) {
+            res.msg = response.entities[0].reserveNumber;
+        }
+        return res;
+
+    } catch (error) {
+        console.log(error);
+        res.resp = false;
+        res.msg = error.message;
+        return res;
     }
-    return res;
 }
 
 module.exports = {

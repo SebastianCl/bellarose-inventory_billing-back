@@ -14,19 +14,22 @@ const Invoice = require('../models/invoice.model');
 
 // Obtener el último número registrado de una factura
 const getLastNumberInvoice = async () => {
-    let res = { resp: false, msg: {} };
+    try {
+        let res = { resp: true, msg: 0 };
 
-    const response = await Invoice.query()
-        .order('invoiceNumber', { descending: true, })
-        .run();
-    if (response.entities.length > 0) {
-        res.resp = true;
-        res.msg = response.entities[0].invoiceNumber;
-    } else {
-        res.resp = true;
-        res.msg = 'Sin resultados.';
+        const response = await Invoice.query()
+            .order('invoiceNumber', { descending: true, })
+            .run();
+        if (response.entities.length > 0) {
+            res.msg = response.entities[0].invoiceNumber;
+        }
+        return res;
+    } catch (error) {
+        console.log(error);
+        res.resp = false;
+        res.msg = error.message;
+        return res;
     }
-    return res;
 }
 
 module.exports = {

@@ -103,6 +103,10 @@ const createInvoice = async (req, res) => {
         if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}.` });
         let customer = exist.msg;
 
+        exist = await commonService.getModel(Customer, customerID);
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}.` });
+        let customerIdentification = exist.msg.identification;
+
         // Validar si existe el empleado
         exist = await commonService.getEntityKey(Employee, employeeID);
         if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe el empleado con id ${employeeID}.` });
@@ -115,13 +119,14 @@ const createInvoice = async (req, res) => {
         if (!exist.msg.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
         // Validar si la reserva esta asociada a una factura
         if (exist.msg.invoiceNumber !== 0) return res.status(400).send({ resp: false, msg: 'La reserva ya tiene una factura asociada.' });
+
         const dataReserve = exist.msg;
         let reserveNumber = dataReserve.reserveNumber;
         let customerName = dataReserve.customerName;
         let employeeName = dataReserve.employeeName;
 
         let data = {
-            customer, employee, customerName, customerID, employeeName, reserveNumber, invoiceNumber,
+            customer, employee, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
             cost, deposit, description, active
         }
 
