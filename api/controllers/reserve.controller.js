@@ -16,6 +16,7 @@
 // Modelo
 const Reserve = require('../models/reserve.model');
 const Article = require('../models/article.model');
+const Invoice = require('../models/invoice.model');
 const ArticleReserved = require('../models/articleReserved.model');
 // Servicio
 const commonService = require('../service/common.service');
@@ -228,13 +229,22 @@ const finishReserve = async (req, res) => {
 
         let dataReserve = respReserve.msg[0];
         let id = dataReserve.id;
-        let active = dataReserve.active;
+        let activeReserve = dataReserve.active;
         let articles = dataReserve.articles;
 
         // Validar si esta activa
-        if (!active) return res.status(400).send({ resp: false, msg: 'La reserva no esta activa.' });
+        if (!activeReserve) return res.status(400).send({ resp: false, msg: 'La reserva no esta activa.' });
 
-        // Regresar artículos al inventario y desactivar artículo reservado
+        // Validar la factura        
+        filter = { filters: ['invoiceNumber', invoiceNumber] };
+        let respInvoice = await commonService.listModelsWithFilter(Invoice, filter);
+        if (!respInvoice.resp) return res.status(400).send(respInvoice);
+
+        let dataInvoice = respInvoice.msg[0];
+        let activeInvoice = dataInvoice.active;
+        if (!activeInvoice) return res.status(400).send({ resp: false, msg: 'La factura no esta activa.' });
+
+        // Regresar artículos al inventario y desactivar artículos reservados
         for (let index = 0; index < articles.length; index++) {
             const id_AR = articles[index];
 
@@ -323,9 +333,32 @@ const deleteReserve = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let response = await commonService.deleteModel(Reserve, id);
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
+        let respReserve = await commonService.commonService(Reserve, id);
+        if (!respReserve.resp) return res.status(400).send(respReserve);
+
+        let dataReserve = respReserve.msg;
+        let articles = dataReserve.articles;
+        let invoiceNumber = dataReserve.invoiceNumber;
+
+        // Buscar factura        
+        if (invoiceNumber > 0) {
+            let filter = { filters: ['invoiceNumber', invoiceNumber] };
+            let respFilter = await commonService.listModelsWithFilter(Invoice, filter);
+            if (!respFilter.resp) return res.status(400).send({ resp: false, msg: `No existe factura con número ${invoiceNumber}` });
+        }
+
+        // Regresar artículos al inventario y desactivar artículos reservados
+        for (let index = 0; index < articles.length; index++) {
+            const id_AR = articles[index];
+
+            // Devolver artículos
+            let updatesArticle = await returnArticles(id_AR, false);
+            if (!updatesArticle.resp) return res.status(400).send(updatesArticle);
+        }
+
+        let respDelete = await commonService.deleteModel(Reserve, id);
+        if (!respDelete.resp) return res.status(400).send(respDelete);
+        return res.status(200).send(respDelete);
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ resp: false, msg: error.message });
