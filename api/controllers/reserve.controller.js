@@ -65,9 +65,24 @@ const getReserve = async (req, res) => {
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
         let id = req.headers['id'];
-        const response = await commonService.getModel(Reserve, id);
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
+        const respReserve = await commonService.getModel(Reserve, id);
+        if (!respReserve.resp) return res.status(400).send(respReserve);
+        let dataReserve = respReserve.msg;
+
+        let articlesID = dataReserve.articles;
+        let articles = [];
+
+        for (let index = 0; index < articlesID.length; index++) {
+            const articleReservedID = articlesID[index];
+            const respAR = await commonService.getModel(ArticleReserved, articleReservedID);
+            if (!respAR.resp) return res.status(400).send(respAR);
+            const dataAR = respAR.msg;
+
+            articles.push({ reference: dataAR.reference, price: dataAR.price, discount: dataAR.discount });
+        }
+
+        dataReserve.articles = articles;
+        return res.status(200).send({ resp: true, msg: dataReserve });
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ resp: false, msg: error.message });
