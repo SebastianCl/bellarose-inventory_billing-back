@@ -20,14 +20,13 @@ const { Schema } = gstore;
  * Creando el esquema para el modelo de factura
 */
 const invoiceSchema = new Schema({
-    customer: { type: Schema.Types.Key, read: true, ref: 'Customer', required: true },
-    employee: { type: Schema.Types.Key, read: true, ref: 'Employee', required: true },
     reserve: { type: Schema.Types.Key, read: true, ref: 'Reserve', required: true },
     customerName: { type: String, required: true },
     customerIdentification: { type: String, required: true },
     employeeName: { type: String, required: true },
     reserveNumber: { type: Number, required: true },
     invoiceNumber: { type: Number, required: true },
+    subTotal: { type: Number, read: true, required: true },
     cost: { type: Number, read: true, required: true },
     deposit: { type: Number, read: true, required: true },
     description: { type: String, read: true, required: true },
@@ -35,5 +34,5 @@ const invoiceSchema = new Schema({
     active: { type: Boolean, read: true, default: true }
 });
 
-// Exporto el esquema de base de datos como 'Invoice'
+// Exportar el esquema de base de datos como 'Invoice'
 module.exports = gstore.model('Invoice', invoiceSchema);

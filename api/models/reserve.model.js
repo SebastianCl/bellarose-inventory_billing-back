@@ -19,9 +19,11 @@ const { Schema } = gstore;
 /**
  * Creando el esquema para el modelo de reserve
 */
-const reserveSchema = new Schema({
+const reserveSchema = new Schema({    
+    customer: { type: Schema.Types.Key, read: true, ref: 'Customer', required: true },
+    employee: { type: Schema.Types.Key, read: true, ref: 'Employee', required: true },
     customerName: { type: String, required: true },
-    customerID: { type: String, required: true },
+    customerIdentification: { type: String, required: true },
     employeeName: { type: String, required: true },
     articles: [{ type: Array, read: true, required: true }],
     description: { type: String, required: false, default: '' },

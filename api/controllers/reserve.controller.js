@@ -18,6 +18,8 @@ const Reserve = require('../models/reserve.model');
 const Article = require('../models/article.model');
 const Invoice = require('../models/invoice.model');
 const ArticleReserved = require('../models/articleReserved.model');
+const Customer = require('../models/customer.model');
+const Employee = require('../models/employee.model');
 // Servicio
 const commonService = require('../service/common.service');
 const reserveService = require('../service/reserve.service');
@@ -86,21 +88,18 @@ const createReserve = async (req, res) => {
 
         let data = req.body;
 
-        let customerName = data.customerName;
         let customerID = data.customerID;
-        let employeeName = data.employeeName;
+        let employeeID = data.employeeID;
         let startDate = data.startDate;
         let endDate = data.endDate;
         let articles = data.articles;
 
         let typeNum = 0; // Tipo de fallo al crear reserva
 
-        // Validar si se envio el nombre del cliente
-        if (validateData.isEmpty(customerName)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar el nombre del cliente.' });
-        // Validar si se envio el nombre del cliente
+        // Validar si se envio el id del cliente
         if (validateData.isEmpty(customerID)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la identificación del cliente.' });
-        // Validar si se envio el nombre del empleado
-        if (validateData.isEmpty(employeeName)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar el nombre del empleado.' });
+        // Validar si se envio el id del empleado
+        if (validateData.isEmpty(employeeID)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la identificación del empleado.' });
         // Validar si se envio la fecha de inicio de la reserva
         if (validateData.isEmpty(startDate)) return res.status(400).send({ resp: false, type: typeNum, msg: 'Debe indicar la fecha de inicio de la reserva.' });
         // Validar si se envio la fecha fin de la reserva
@@ -111,6 +110,21 @@ const createReserve = async (req, res) => {
         // Asignar formato de fecha
         startDate = new Date(startDate);
         endDate = new Date(endDate);
+
+        // Validar si existe el cliente
+        let respKey = await commonService.getEntityKey(Customer, customerID);
+        if (!respKey.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}.` });
+        let customer = respKey.msg;
+        let respCustomer = await commonService.getModel(Customer, customerID);
+        let customerName = respCustomer.msg.name;
+        let customerIdentification = respCustomer.msg.identification;
+
+        // Validar si existe el empleado
+        respKey = await commonService.getEntityKey(Employee, employeeID);
+        if (!respKey.resp) return res.status(400).send({ resp: false, msg: `No existe el empleado con id ${employeeID}.` });
+        let employee = respKey.msg;
+        let respEmployee = await commonService.getModel(Employee, employeeID);
+        let employeeName = respEmployee.msg.name;
 
         let allBad = [];
         let allId_AR = [];
@@ -174,8 +188,8 @@ const createReserve = async (req, res) => {
         const reserveNumber = respondeReserve.msg + 1; // Asignar nuevo número de reserva
         // Completar datos y crear reserva
         const newReserve = {
-            customerName, customerID, employeeName, startDate, endDate,
-            reserveNumber,
+            customer, employee, customerName, customerIdentification, employeeName,
+            startDate, endDate, reserveNumber,
             articles: allId_AR
         };
         let createdReserve = await commonService.createModel(Reserve, newReserve);
