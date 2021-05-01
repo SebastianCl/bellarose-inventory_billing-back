@@ -54,7 +54,7 @@ const createUser = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
-        if (!resToken.resp) return res.status(401).send(resToken);
+        //if (!resToken.resp) return res.status(401).send(resToken);
 
         let response = {};
         let data = req.body;

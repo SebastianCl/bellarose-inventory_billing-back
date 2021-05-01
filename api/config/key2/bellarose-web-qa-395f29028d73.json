@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "bellarose-web-qa",
+  "private_key_id": "395f29028d738dc84dd192e504928a94b2c39876",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDIVqRN3m6S+fyR\nBN6dH7TqFnhAFPtUl4CE+t1KzOwOEI/57+FH0yWND3D6T8dCan6Jl5lJrMm0tjUJ\ndsyRiZ/o1XoS0Dt4NZZWBxSp1dNm5FNg3few8PgAY+ajT7SjDlOSnM/eal+3aH0p\nDWR5nveEfzLg0P6nmXHv21/hoa4aXz6qXlnj86BPYG2AST2oEjGzl1I7DyUdZVyk\nrkXvEFJjpGcrwCPFBzyoXrdkb7FqRWwhuG+BEENeAs4jHcIlBgm+TADELpneKsYg\n0JYfAN/Ing9CM6MsRh+Va9dxvkd6Hwu/rv3qmYHrvJEt7H3eZ0GdEj8hNyzu3NqK\nZ+Nv72GnAgMBAAECggEAQvw9WdAK1tgBbBfdu1mzqyWyNXMOij1R+qTKw0z7jMRa\n764WfGaMQrssAnYUYQ+smaL33RuKIgNefnibc/o5XqeqdonrqIj6aG9bqGHXmqqz\neksdm6smsTK2Flr7Qh3zMa1/D5YvxOqKFuTkeIn/puzE/UjELRPwdcu7Jn1h8mzY\nd6QS9nAuSviMWwhhouJEiAofDJwj46czkKAMHT/7z9EoGMumjjhYFoI5k20k1vBb\n1oS1SfuSO6ppdpZLENVzAiRTlInBh5+rqE1CjUAXTGn74u8OHpQfWLrGVcB6X6vS\nf1FK/A8A/RcsExffUdKo/3Lq6ZTKNRZ+v7EUHOG3WQKBgQDzYuQ8Yfax1tNq2Bf7\nBjqyeL/oUYdUdOpf6J1XcuPpXEkHdm1FHfR/JnaqkHEqbzGA291B13SQ9EzJBkpC\nPQhI/UcypuPFtWE3k8x9nN1QbCAw7czUPOA+9V9iCxInpDEIHCdNQglqYIEZ/Knz\nZyLb9Q69rqinv6NlXSvUrwH0jQKBgQDSuJ3Ga4JTf/uX/QjFuxbD0IjBBUNBhpmU\n0fy2TNWno07N7w/Xv+9TqkcZNDoO+f0v98B5ancvt6NKk77uQhrAO6iNGkA7W9B+\nNQ8XOp9XjznKaXFMdPY9X/HtPw8Y+evi0iJdGcRb9LNZoedghHICBrCvCehljK0+\n2cDGGaiUAwKBgQDqKF6FaYq6loBY7wZDUD7wrhOUI7wbmVBUbavTEooLXeo07885\nDBTKr+rDNqxpswjhfKZmTi+rth6Z2R9gku+BqYvyQ3YoJNUfb2byAxU55o0iBedm\n2hq098WIwjX5RZKWxt9ZCQud+LK8mcW4k6WKET7ZZ0yD92/wea9NtAIhkQKBgQDQ\nSlcCxFB90ztRwHfEZCubgW08RsR1Z+Q1+99uH8Ltwvppi05AuGOMcvt2iW5+UVOY\n76/dFIUdsMsDM8n+X29r50yztWgahKYxqqbxEixhc5zvXIz2w4KHpmhQWA3HZXtq\nqMX4+zhioR4LkoNQn3rGT/CkBQooHwc84iewabp+GwKBgQDxYfsvTj5jEfuyvK54\nT95jymrNgPRBu9Gc6AHFHwe6r36o0hxa5GYrpMhS9S2m59YWQn2G5b8RsSRcRkgI\nM+7x/ONItaO8pk3atzL+hvLMYvGPZJjHofiuktgcM0mbgMMO2n0QEkDT5f/Ul8PV\n/4gkDmApxOkTkiANnxuhhkZHHQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "bellarosedev@bellarose-web-qa.iam.gserviceaccount.com",
+  "client_id": "109347173605143157134",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/bellarosedev%40bellarose-web-qa.iam.gserviceaccount.com"
+}
