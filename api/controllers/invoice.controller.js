@@ -125,22 +125,25 @@ const createInvoice = async (req, res) => {
         let customerName = dataReserve.customerName;
         let employeeName = dataReserve.employeeName;
 
+        exist = await commonService.getEntityKey(Reserve, reserveID);
+        if (!exist.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}.` });
+        let reserve = exist.msg;
+
         let data = {
-            customer, employee, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
+            customer, employee, reserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
             cost, deposit, description, active
         }
 
         // Crear factura
-        let invoice = Invoice.sanitize(data);
-        let response = await commonService.createModel(Invoice, invoice);
-        if (!response.resp) return res.status(400).send(response);
+        let respInvoice = await commonService.createModel(Invoice, data);
+        if (!respInvoice.resp) return res.status(400).send(respInvoice);
 
         // Actualizar reserva con número de factura
         let newDataReserve = { invoiceNumber };
-        response = await commonService.updateModel(Reserve, newDataReserve, reserveID);
+        let respReserve = await commonService.updateModel(Reserve, newDataReserve, reserveID);
+        if (!respReserve.resp) return res.status(400).send(respReserve);
 
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
+        return res.status(200).send(respInvoice);
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ resp: false, msg: error.message });
