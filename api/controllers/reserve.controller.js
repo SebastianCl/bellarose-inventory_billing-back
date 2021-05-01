@@ -130,7 +130,9 @@ const createReserve = async (req, res) => {
         let allId_AR = [];
         // Validar si el artículo existe o esta disponible
         for (let index = 0; index < articles.length; index++) {
-            const reference = articles[index];
+            const reference = articles[index].ref;
+            const price = articles[index].price;
+            const discount = articles[index].discount;
 
             let filter = { filters: ['reference', reference] };
             let exist = await commonService.listModelsWithFilter(Article, filter);
@@ -161,7 +163,7 @@ const createReserve = async (req, res) => {
                     break;
                 }
                 else {
-                    const dataArticleReserved = { reference: articleData.reference, dateInit: startDate, dateEnd: endDate };
+                    const dataArticleReserved = { reference, price, discount, dateInit: startDate, dateEnd: endDate };
                     let isCreateAR = await createAR(articleData, dataArticleReserved);
                     if (!isCreateAR.resp) return res.status(400).send(isCreateAR);
                     const idAR = isCreateAR.msg.id;

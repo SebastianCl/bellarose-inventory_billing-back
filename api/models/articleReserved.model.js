@@ -21,6 +21,8 @@ const { Schema } = gstore;
 */
 const articleReservedSchema = new Schema({
     reference: { type: String, required: true },
+    price: { type: Number, required: true },
+    discount: { type: Number, required: true },
     dateInit: { type: Date, required: true },
     dateEnd: { type: Date, required: true },
     active: { type: Boolean, required: false, default: true }
