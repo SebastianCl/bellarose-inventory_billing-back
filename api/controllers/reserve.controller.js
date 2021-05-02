@@ -272,7 +272,7 @@ const updateReserve = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let data = Reserve.sanitize(req.body);
+        let data = req.body;
         let response = await commonService.updateModel(Reserve, data, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);

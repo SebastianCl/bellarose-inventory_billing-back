@@ -81,15 +81,36 @@ const createArticle = async (req, res) => {
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
+        // Obtener caracteristicas del artículo, sin espacios en blanco y la referencia en mayusculas
         let data = req.body;
-
-        // Validar si se envio imagen
+        let type = data.type;
+        let brand = data.brand.trim();
+        let color = data.color.trim();
+        let size = data.size.trim();
+        let reference = data.reference.trim().toUpperCase();
         let imageBase64 = data.imageBase64;
+
+        // Validar si se envio el tipo imagen
+        if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar el tipo.' });
+        // Validar si se envio la marca
+        if (validateData.isEmpty(brand)) return res.status(400).send({ resp: false, msg: 'Debe enviar la marca.' });
+        // Validar si se envio el color
+        if (validateData.isEmpty(color)) return res.status(400).send({ resp: false, msg: 'Debe enviar el color.' });
+        // Validar si se envio la talla
+        if (validateData.isEmpty(size)) return res.status(400).send({ resp: false, msg: 'Debe enviar la talla' });
+        // Validar si se envio la referencia
+        if (validateData.isEmpty(reference)) return res.status(400).send({ resp: false, msg: 'Debe enviar la referencia.' });
+        // Validar si se envio imagen
         if (validateData.isEmpty(imageBase64)) return res.status(400).send({ resp: false, msg: 'Debe enviar la imagen.' });
 
+        // Buscar si existe un artículo con la referencia enviada
+        let filter = { filters: ['reference', reference] };
+        let respFilter = await commonService.listModelsWithFilter(Article, filter);
+        if (respFilter.resp) return res.status(400).send({ resp: false, msg: `Ya existe un artículo de referencia ${reference}` });
+
         let imageData = {
-            nameFile: data.reference,
-            routeFile: `${data.type}/${data.brand}/${data.color}/${data.size}`,
+            nameFile: reference,
+            routeFile: `${type}/${brand}/${color}/${size}`,
             imageBase64
         };
 
