@@ -273,6 +273,12 @@ const updateReserve = async (req, res) => {
 
         let id = req.headers['id'];
         let data = req.body;
+
+        // Validar si existe la reserva
+        let respReserve = await commonService.getModel(Reserve, reservID);
+        if (!respReserve.resp) return res.status(400).send({ resp: false, msg: 'No existe la reserva' });
+
+
         let response = await commonService.updateModel(Reserve, data, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
