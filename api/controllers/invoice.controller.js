@@ -16,6 +16,7 @@
 // Modelos
 const Invoice = require('../models/invoice.model');
 const Reserve = require('../models/reserve.model');
+const ArticleReserved = require('../models/articleReserved.model');
 // Servicio
 const commonService = require('../service/common.service');
 const invoiceService = require('../service/invoice.service');
@@ -61,6 +62,23 @@ const getInvoice = async (req, res) => {
 
         let id = req.headers['id'];
         let response = await commonService.getModel(Invoice, id);
+
+        let dataInvoice = response.msg;
+
+        let articlesID = dataInvoice.reserve.articles;
+        let articles = [];
+
+        for (let index = 0; index < articlesID.length; index++) {
+            const articleReservedID = articlesID[index];
+            const respAR = await commonService.getModel(ArticleReserved, articleReservedID);
+            if (!respAR.resp) return res.status(400).send(respAR);
+            const dataAR = respAR.msg;
+
+            articles.push({ reference: dataAR.reference, price: dataAR.price, discount: dataAR.discount });
+        }
+
+        dataInvoice.articles = articles;
+
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
@@ -154,10 +172,8 @@ const updateInvoice = async (req, res) => {
         if (invoiceNumber === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la factura.' });
         if (payment === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el abono de la factura.' });
 
-
         let filter = { filters: [] };
         filter.filters.push(['invoiceNumber', invoiceNumber]);
-
         // Buscar si existe factura con el número enviado
         let respIsInvoice = await commonService.listModelsWithFilter(Invoice, filter);
         if (!respIsInvoice.resp) return res.status(400).send({ resp: false, msg: `No existe la factura ${invoiceNumber}.` });
