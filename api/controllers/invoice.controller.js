@@ -14,13 +14,12 @@
  * INCIO DEPENDENCIAS     *
  **************************/
 // Modelos
-const Customer = require('../models/customer.model');
 const Invoice = require('../models/invoice.model');
-const Employee = require('../models/employee.model');
 const Reserve = require('../models/reserve.model');
 // Servicio
 const commonService = require('../service/common.service');
 const invoiceService = require('../service/invoice.service');
+const reserveService = require('../service/reserve.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 /**************************
@@ -179,7 +178,14 @@ const updateInvoice = async (req, res) => {
 
         let newPayment = lastPayment + payment; // Sumar ultimo pago con el nuevo deposito
 
-        if (total === newPayment) active = false; // Desactivar factura si se completo el pago total
+        // Desactivar factura si se completo el pago total
+        if (total === newPayment) {
+            active = false;
+            const reserveNumber = invoiceData.reserveNumber;
+            // Finalizar reserva
+            let respFinish = await reserveService.finishReserve(reserveNumber);
+            if (!respFinish.resp) return res.status(400).send(respFinish);
+        }
 
         let newDataInvoice = { deposit: newPayment, active };
 

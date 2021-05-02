@@ -20,14 +20,13 @@ const Invoice = require('../models/invoice.model');
 const ArticleReserved = require('../models/articleReserved.model');
 const Customer = require('../models/customer.model');
 const Employee = require('../models/employee.model');
-// Servicio
+// Servicios
 const commonService = require('../service/common.service');
 const reserveService = require('../service/reserve.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 // Validaciones
 const validateData = require('../tools/validations/validateData');
-const general = require('../tools/utils/general');
 /**************************
  * FIN DEPENDENCIAS       *
  **************************/
@@ -192,7 +191,7 @@ const createReserve = async (req, res) => {
                 for (let index = 0; index < allId_AR.length; index++) {
                     const id_AR = allId_AR[index];
                     // Eliminar registros de artículos reservados
-                    await returnArticles(id_AR, true);
+                    await reserveService.returnArticles(id_AR, true);
                 }
             }
             return res.status(400).send({ resp: false, type: typeNum, msg: allBad });
@@ -250,82 +249,15 @@ const finishReserve = async (req, res) => {
 
         let reserveNumber = req.body.reserveNumber;
 
-        // Validar si envio el número de reserva
-        if (validateData.isEmpty(reserveNumber)) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de reserva.' });
+        let respFinish = await reserveService.finishReserve(reserveNumber);
 
-        // Validar si existe la reserva
-        let filter = { filters: ['reserveNumber', reserveNumber] };
-        let respReserve = await commonService.listModelsWithFilter(Reserve, filter);
-        if (!respReserve.resp) return res.status(400).send(respReserve);
-
-        let dataReserve = respReserve.msg[0];
-        let id = dataReserve.id;
-        let activeReserve = dataReserve.active;
-        let articles = dataReserve.articles;
-
-        // Validar si esta activa
-        if (!activeReserve) return res.status(400).send({ resp: false, msg: 'La reserva no esta activa.' });
-
-        // Validar la factura        
-        filter = { filters: ['invoiceNumber', invoiceNumber] };
-        let respInvoice = await commonService.listModelsWithFilter(Invoice, filter);
-        if (!respInvoice.resp) return res.status(400).send(respInvoice);
-
-        let dataInvoice = respInvoice.msg[0];
-        let activeInvoice = dataInvoice.active;
-        if (!activeInvoice) return res.status(400).send({ resp: false, msg: 'La factura no esta activa.' });
-
-        // Regresar artículos al inventario y desactivar artículos reservados
-        for (let index = 0; index < articles.length; index++) {
-            const id_AR = articles[index];
-
-            // Devolver artículos
-            let updatesArticle = await returnArticles(id_AR, false);
-            if (!updatesArticle.resp) return res.status(400).send(updatesArticle);
-        }
-
-        // Deshabilitar reserva
-        let newData = { active: false };
-        let response = await commonService.updateModel(Reserve, newData, id);
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
+        if (!respFinish.resp) return res.status(400).send(respFinish);
+        return res.status(200).send(respFinish);
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ resp: false, msg: error.message });
     }
 };
-
-// Devolver artículos al inventario
-async function returnArticles(id_AR, isDelete) {
-    // Validar si existe el artículo reservado            
-    let responseAR = await commonService.getModel(ArticleReserved, id_AR);
-    if (!responseAR.resp) return responseAR;
-
-    // Buscar artículo por referencia
-    let filter = { filters: ['reference', responseAR.msg.reference] };
-    let resArticle = await commonService.listModelsWithFilter(Article, filter);
-    if (!resArticle.resp) return resArticle;
-
-    if (!isDelete) {
-        let article = resArticle.msg[0];
-        let articleID = article.id;
-        let quantity = article.quantity + 1;
-        let articleNewData = { quantity };
-
-        // Regresar artículo al inventario
-        let updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
-        if (!updatedArticle.resp) return updatedArticle;
-
-        // Desactivar artículo reservado
-        const AR_NewData = { active: false };
-        let updatedAR = await commonService.updateModel(ArticleReserved, AR_NewData, id_AR);
-        return updatedAR;
-    } else {
-        // Eliminar artículo reservado
-        let deleteAR = await commonService.deleteModel(ArticleReserved, id_AR);
-        return deleteAR;
-    }
-}
 
 /**
  * @function updateReserve
@@ -383,7 +315,7 @@ const deleteReserve = async (req, res) => {
             const id_AR = articles[index];
 
             // Devolver artículos
-            let updatesArticle = await returnArticles(id_AR, false);
+            let updatesArticle = await reserveService.returnArticles(id_AR, false);
             if (!updatesArticle.resp) return res.status(400).send(updatesArticle);
         }
 
