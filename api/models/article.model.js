@@ -28,7 +28,8 @@ const articleSchema = new Schema({
     imageURL: { type: String, required: true },
     comments: { type: String, required: false },
     price: { type: Number, required: true },
-    quantity: { type: Number, required: true }
+    quantity: { type: Number, required: true },
+    available: { type: Boolean, required: true }
 });
 
 articleSchema.queries('list');

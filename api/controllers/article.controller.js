@@ -87,8 +87,11 @@ const createArticle = async (req, res) => {
         let brand = data.brand.trim();
         let color = data.color.trim();
         let size = data.size.trim();
-        let reference = data.reference.trim().toUpperCase();
+        size = size.toUpperCase();
+        let reference = data.reference.trim();
+        reference = reference.toUpperCase();
         let imageBase64 = data.imageBase64;
+        let available = data.available;
 
         // Validar si se envio el tipo imagen
         if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar el tipo.' });
@@ -102,6 +105,8 @@ const createArticle = async (req, res) => {
         if (validateData.isEmpty(reference)) return res.status(400).send({ resp: false, msg: 'Debe enviar la referencia.' });
         // Validar si se envio imagen
         if (validateData.isEmpty(imageBase64)) return res.status(400).send({ resp: false, msg: 'Debe enviar la imagen.' });
+        // Validar si se indicó el estado de disponibilidad
+        if (validateData.isEmpty(available)) return res.status(400).send({ resp: false, msg: 'Debe indicar el estado de disponibilidad.' });
 
         // Buscar si existe un artículo con la referencia enviada
         let filter = { filters: ['reference', reference] };
@@ -111,15 +116,16 @@ const createArticle = async (req, res) => {
         let imageData = {
             nameFile: reference,
             routeFile: `${type}/${brand}/${color}/${size}`,
-            imageBase64
+            imageBase64,
+            available
         };
 
         let respondeStorage = await storageService.uploadToStorage(imageData);
         if (!respondeStorage.resp) return res.status(400).send(respondeStorage);
 
+        let imageURL = respondeStorage.msg.msg;
 
-        data.imageURL = respondeStorage.msg.msg;
-        let dataArticle = Article.sanitize(data);
+        let dataArticle = { type, brand, color, size, reference, available, imageURL };
 
         let response = await commonService.createModel(Article, dataArticle);
         if (!response.resp) return res.status(400).send(response);
