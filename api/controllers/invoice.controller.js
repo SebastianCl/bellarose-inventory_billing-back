@@ -115,9 +115,10 @@ const createInvoice = async (req, res) => {
         const invoiceNumber = respondeInvoice.msg + 1;
 
         // Validar si existe la reserva
-        let respReserve = await commonService.getModel(Reserve, reserveID);
+        let respReserve = await commonService.getModel(Reserve, reserveID, true);
         if (!respReserve.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}.` });
-        let dataReserve = respReserve.msg;
+        let dataReserve = respReserve.msg.entityData;
+        let keyReserve = respReserve.msg.entityKey;
         // Validar si la reserva esta activa
         if (!dataReserve.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
         // Validar si la reserva esta asociada a una factura
@@ -128,12 +129,8 @@ const createInvoice = async (req, res) => {
         let employeeName = dataReserve.employeeName;
         let reserveNumber = dataReserve.reserveNumber;
 
-        let keyReserve = await commonService.getEntityKey(Reserve, reserveID);
-        if (!keyReserve.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}.` });
-        let reserve = keyReserve.msg;
-
         let data = {
-            reserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
+            reserve: keyReserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
             subTotal, cost, deposit, description, active
         }
 

@@ -22,14 +22,14 @@ const getModels = async (Model) => {
     return res;
 }
 
-const getModel = async (Model, id) => {
+const getModel = async (Model, id, key) => {
     let res = { resp: false, msg: '' };
     let modelId = Number(id);
     await Model.get(modelId)
         .populate()
         .then((entity) => {
             res.resp = true;
-            res.msg = entity.entityData;
+            res.msg = key ? entity : entity.entityData;
         })
         .catch(err => { res.msg = err; })
     return res;
@@ -88,32 +88,6 @@ const listModelsWithFilter = async (Model, filter) => {
     return res;
 }
 
-// Obtener entityKey de un modelo
-const getEntityKey = async (Model, id) => {
-    let res = { resp: false, msg: `El registro con id ${id} no existe.` };
-
-    let entityKey;
-    let getkey = new Promise(async (resolve, reject) => {
-        await Model.get(id)
-            .populate()
-            .then((entity) => {
-                entityKey = entity.entityKey;
-                return resolve(entityKey);
-            })
-            .catch(err => {
-                return reject(res);
-            });
-    });
-    await getkey;
-
-    if (!getkey) return res;
-
-    res.resp = true;
-    res.msg = entityKey
-    return res;
-}
-
-
 //Exportar funciones
 module.exports = {
     getModels,
@@ -121,6 +95,5 @@ module.exports = {
     createModel,
     updateModel,
     deleteModel,
-    listModelsWithFilter,
-    getEntityKey
+    listModelsWithFilter
 };

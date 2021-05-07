@@ -68,14 +68,14 @@ async function processRol(dataRole) {
     let userData = {};
     let roleId = dataRole; // Obtener el id del rol
 
-    let role = await commonService.getEntityKey(Role, roleId);
+    let role = await commonService.getModel(Role, roleId, true);
     if (!role.resp) {
         res.msg = { resp: false, msg: `El rol con id ${roleId} no existe.` };
         return res;
     }
 
     // Asignar la entidad rol como una propiedad del usuario
-    userData.role = role.msg;
+    userData.role = role.msg.entityKey;
     res.code = 200;
     res.msg = userData;
     return res;

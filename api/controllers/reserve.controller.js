@@ -88,6 +88,24 @@ const getReserve = async (req, res) => {
     }
 };
 
+// Permite almacenar un registro de un artículo reservado 
+async function createAR(article, dataArticleReserved) {
+    const articleID = article.id;
+
+    const quantity = article.quantity - 1;
+    let articleNewData = { quantity };
+
+    // Actualizar registros
+    const updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
+    if (!updatedArticle.resp) return updatedArticle;
+
+    // Crear registro de artículo reservado
+    const dataAR = dataArticleReserved;
+    let createdAR = await commonService.createModel(ArticleReserved, dataAR);
+
+    return createdAR;
+}
+
 /**
  * @function createReserve
  * @param {Request} req Obtener parametros de cabecera
@@ -126,19 +144,18 @@ const createReserve = async (req, res) => {
         endDate = new Date(endDate);
 
         // Validar si existe el cliente
-        let respKey = await commonService.getEntityKey(Customer, customerID);
-        if (!respKey.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}.` });
-        let customer = respKey.msg;
-        let respCustomer = await commonService.getModel(Customer, customerID);
-        let customerName = respCustomer.msg.name;
-        let customerIdentification = respCustomer.msg.identification;
+        let respCustomer = await commonService.getModel(Customer, customerID, true);
+        if (!respCustomer.resp) return res.status(400).send({ resp: false, msg: `No existe el cliente con id ${customerID}.` });
+        let keyCustomer = respCustomer.msg.entityKey;
+        let customerName = respCustomer.msg.entityData.name;
+        let customerIdentification = respCustomer.msg.entityData.identification;
 
         // Validar si existe el empleado
-        respKey = await commonService.getEntityKey(Employee, employeeID);
-        if (!respKey.resp) return res.status(400).send({ resp: false, msg: `No existe el empleado con id ${employeeID}.` });
-        let employee = respKey.msg;
-        let respEmployee = await commonService.getModel(Employee, employeeID);
-        let employeeName = respEmployee.msg.name;
+        let respEmployee = await commonService.getModel(Employee, employeeID, true);
+        if (!respEmployee.resp) return res.status(400).send({ resp: false, msg: `No existe el empleado con id ${employeeID}.` });
+        let keyEmployee = respEmployee.msg.entityKey;
+        let employeeName = respEmployee.msg.entityData.name;
+        let employeeIdentification = respEmployee.msg.entityData.identification;
 
         let allBad = [];
         let allId_AR = [];
@@ -204,7 +221,7 @@ const createReserve = async (req, res) => {
         const reserveNumber = respondeReserve.msg + 1; // Asignar nuevo número de reserva
         // Completar datos y crear reserva
         const newReserve = {
-            customer, employee, customerName, customerIdentification, employeeName,
+            customer: keyCustomer, employee: keyEmployee, customerName, customerIdentification, employeeName, employeeIdentification,
             startDate, endDate, reserveNumber,
             articles: allId_AR
         };
@@ -217,23 +234,6 @@ const createReserve = async (req, res) => {
         res.status(500).send({ resp: false, msg: error.message });
     }
 };
-
-async function createAR(article, dataArticleReserved) {
-    const articleID = article.id;
-
-    const quantity = article.quantity - 1;
-    let articleNewData = { quantity };
-
-    // Actualizar registros
-    const updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
-    if (!updatedArticle.resp) return updatedArticle;
-
-    // Crear registro de artículo reservado
-    const dataAR = dataArticleReserved;
-    let createdAR = await commonService.createModel(ArticleReserved, dataAR);
-
-    return createdAR;
-}
 
 /**
  * @function finishReserve
@@ -272,14 +272,67 @@ const updateReserve = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let data = req.body;
 
         // Validar si existe la reserva
         let respReserve = await commonService.getModel(Reserve, reservID);
-        if (!respReserve.resp) return res.status(400).send({ resp: false, msg: 'No existe la reserva' });
+        if (!respReserve.resp) return res.status(400).send({ resp: false, msg: 'No existe la reserva.' });
+
+        let newData = req.body;
+        let articles = newData.articles;
+        let typeNum;
+
+        // Si se editco la lista de artículos
+        if (articles) {
+
+            let reserveAR = respReserve.msg.articles; // IDs se artículos reservados
+
+            // Validar si existe articulo con referencia indicada
+            let allBad = [];
+            for (let index = 0; index < articles.length; index++) {
+                const reference = articles[index];
 
 
-        let response = await commonService.updateModel(Reserve, data, id);
+                let filter = { filters: ['reference', reference] };
+                let exist = await commonService.listModelsWithFilter(Article, filter);
+
+                // Validar si el artículo existe
+                if (!exist.resp) {
+                    allBad.push({ reference, motive: 'No existe artículo con la referencia indicada.' });
+                    typeNum = 1;
+                    break;
+                }
+
+            }
+
+            // Cancelar reserva si algún artículo fallo al buscarlo
+            if (allBad.length > 0) {
+                if (typeNum === 2) {
+                    for (let index = 0; index < allId_AR.length; index++) {
+                        const id_AR = allId_AR[index];
+                        // Eliminar registros de artículos reservados
+                        await reserveService.returnArticles(id_AR, true);
+                    }
+                }
+                return res.status(400).send({ resp: false, type: typeNum, msg: allBad });
+            }
+
+
+            // Eliminar registros viejos
+            for (let index = 0; index < reserveAR.length; index++) {
+                const idAR = reserveAR[index];
+
+                let respAR = await commonService.deleteModel(ArticleReserved, idAR);
+
+                if (!respAR.resp) console.log(respAR.msg);
+            }
+
+
+        }
+
+
+
+
+        let response = await commonService.updateModel(Reserve, newData, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
