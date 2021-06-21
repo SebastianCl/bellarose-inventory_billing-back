@@ -1,8 +1,8 @@
 module.exports = {
   'secret': '*987654321bellarose-inventory_billing123456789*',
   'front_dev': 'http://localhost:4200',// https://bellarose-web-qa.wl.r.appspot.com
-  'keyPath': './api/config/key2/',
-  'key_dev': 'bellarose-qa-8a591141e80f.json', //'bellarose-web-qa-395f29028d73.json'
+  'keyPath': './api/config/key/',
+  'key_dev': 'bellarose-qa-7196b9c80b13.json',
   'version': '1.0.0',
   'bucketName_dev': 'bellarose-qa.appspot.com', //'bellarose-web-qa.appspot.com'
 };
