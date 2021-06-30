@@ -44,7 +44,7 @@ const getInvoices = async (req, res) => {
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
@@ -83,7 +83,7 @@ const getInvoice = async (req, res) => {
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
@@ -147,7 +147,7 @@ const createInvoice = async (req, res) => {
         return res.status(200).send(respInvoice);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
@@ -209,32 +209,33 @@ const updateInvoice = async (req, res) => {
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
-
 /**
- * @function deleteInvoice
+ * @function disableInvoice
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite eliminar una factura especifico por ID
+ * @description Permite deshabilitar una factura especifica por ID
  */
-const deleteInvoice = async (req, res) => {
+const disableInvoice = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
 
-        let id = req.headers['id'];
-        let response = await commonService.deleteModel(Invoice, id);
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        let invoiceNumber = req.body.invoiceNumber;
+
+        let response = await invoiceService.disableInvoice(invoiceNumber);
+
+        return res.status(response.code).send(response.msg);
     }
-};
+    catch (error) {
+        console.log(error.message);
+        return res.status(500).send({ resp: false, msg: error.message });
+    }
+}
 
 /**
  * @function findInvoiceWithFilter
@@ -274,7 +275,7 @@ const findInvoiceWithFilter = async (req, res) => {
         res.status(200).send(reserveList);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
     }
 }
 
@@ -295,7 +296,7 @@ const test = async (req, res) => {
         console.log(query);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
     }
 }
 
@@ -306,7 +307,7 @@ module.exports = {
     getInvoices,
     createInvoice,
     updateInvoice,
-    deleteInvoice,
+    disableInvoice,
     findInvoiceWithFilter,
     test
 };
