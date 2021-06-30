@@ -103,6 +103,7 @@ const createInvoice = async (req, res) => {
         let subTotal = req.body.subTotal;
         let cost = req.body.cost;
         let deposit = req.body.deposit;
+        let payment = req.body.payment;
         let description = req.body.description;
         let active = true;
 
@@ -131,7 +132,7 @@ const createInvoice = async (req, res) => {
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
-            subTotal, cost, deposit, description, active
+            subTotal, cost, deposit, payment, description, active
         }
 
         // Crear factura
@@ -182,14 +183,14 @@ const updateInvoice = async (req, res) => {
 
         let id = invoiceData.id;
         let total = invoiceData.cost;
-        let lastPayment = invoiceData.deposit;
+        let lastPayment = invoiceData.payment;
         let remaining = total - lastPayment;
         let active = true;
 
         // Validar si el pago sobrepasa lo faltante
         if (payment > remaining) return res.status(400).send({ resp: false, msg: 'Sobrepasa el total de la factura.' });
 
-        let newPayment = lastPayment + payment; // Sumar ultimo pago con el nuevo deposito
+        let newPayment = lastPayment + payment; // Sumar ultimo pago con el nuevo abono
 
         // Desactivar factura si se completo el pago total
         if (total === newPayment) {
@@ -200,7 +201,7 @@ const updateInvoice = async (req, res) => {
             if (!respFinish.resp) return res.status(400).send(respFinish);
         }
 
-        let newDataInvoice = { deposit: newPayment, active };
+        let newDataInvoice = { payment: newPayment, active };
 
         // Actualizar factura
         let response = await commonService.updateModel(Invoice, newDataInvoice, id);

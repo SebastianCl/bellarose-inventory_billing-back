@@ -29,6 +29,7 @@ const invoiceSchema = new Schema({
     subTotal: { type: Number, read: true, required: true },
     cost: { type: Number, read: true, required: true },
     deposit: { type: Number, read: true, required: true },
+    payment: { type: Number, read: true, required: true },
     description: { type: String, read: true, required: true },
     date: { type: Date, required: false, default: gstore.defaultValues.NOW },
     active: { type: Boolean, read: true, default: true }
