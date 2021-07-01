@@ -119,6 +119,9 @@ const finishReserve = async (reserveNumber, res) => {
     }
 };
 
+const updateReserve = async () => {
+
+}
 module.exports = {
     getLastNumberReserve,
     finishReserve,
