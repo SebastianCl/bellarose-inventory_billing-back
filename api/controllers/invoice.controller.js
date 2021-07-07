@@ -152,12 +152,12 @@ const createInvoice = async (req, res) => {
 };
 
 /**
- * @function updateInvoice
+ * @function payInvoice
  * @param {Request} req Obtener parametros de cabecera
  * @param {Response} res Obtener valores del Body
- * @description Permite actualizar una factura especifico por ID
+ * @description Permite pagar una factura especifico por ID
  */
-const updateInvoice = async (req, res) => {
+const payInvoice = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
@@ -179,7 +179,7 @@ const updateInvoice = async (req, res) => {
         let invoiceData = respIsInvoice.msg[0]; // Datos de factura
 
         // Validar si la factura esta activa
-        if (!invoiceData.active) return res.status(400).send({ resp: false, msg: `La factura ${invoiceNumber} esta inactiva.` });
+        if (!invoiceData.active || invoiceData.disable) return res.status(400).send({ resp: false, msg: `La factura ${invoiceNumber} esta inactiva.` });
 
         let id = invoiceData.id;
         let total = invoiceData.cost;
@@ -283,17 +283,20 @@ const findInvoiceWithFilter = async (req, res) => {
 
 const test = async (req, res) => {
     try {
-        /*
-        const query = await Invoice.query()
-            .filter('__key__', '>', Invoice.key(['Customer', '5080330100801536']))
-            .run();*/
+        let todayDate = new Date();
+        let endDate = new Date('08/30/2021');
 
-        const query = await Invoice.query()
-            .filter('__key__', '=', 5632499082330112)
-            .limit(1)
-            .run();
+        const oneDay = 1000 * 60 * 60 * 24;
+        const today = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+        const end = Date.UTC(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+        let moraDays = (end - today) / oneDay;
 
-        console.log(query);
+        console.log(todayDate);
+        console.log(endDate);
+
+        let moraTotalCost = moraDays < 1 ? 0 : moraDays * 10000;
+
+        return res.status(400).send({ resp: false, msg: moraTotalCost });
     } catch (error) {
         console.log(error.message);
         return res.status(500).send({ resp: false, msg: error.message });
@@ -306,7 +309,7 @@ module.exports = {
     getInvoice,
     getInvoices,
     createInvoice,
-    updateInvoice,
+    payInvoice,
     disableInvoice,
     findInvoiceWithFilter,
     test

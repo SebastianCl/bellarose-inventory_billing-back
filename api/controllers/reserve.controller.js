@@ -23,6 +23,7 @@ const Employee = require('../models/employee.model');
 // Servicios
 const commonService = require('../service/common.service');
 const reserveService = require('../service/reserve.service');
+const invoiceService = require('../service/invoice.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 // Validaciones
@@ -300,19 +301,21 @@ const updateReserve = async (req, res) => {
         let respReserve = await commonService.getModel(Reserve, reserveID);
         if (!respReserve.resp) return res.status(400).send({ resp: false, msg: 'No existe la reserva.' });
 
-        let dataReserve = respReserve.msg;
+        let dataReserve = respReserve.msg; // Datos de la reserva
 
-        let newData = req.body;
-        let newArticles = newData.articles;
-        let typeNumError = 1;
+        // Validar si la reserva esta activa
+        if (!dataReserve.active) return res.status(400).send({ resp: false, msg: 'No se puede editar una reserva cerrada.' });
 
+
+        let newData = req.body; // Nuevos datos de la reserva
 
         // Si se actualiza la fecha final
         let endDate = newData.endDate ? new Date(newData.endDate) : dataReserve.endDate;
         // Valida si se actualiza la descripción
         let description = newData.description ? newData.description : dataReserve.description;
 
-        let allId_AR = dataReserve.articles;
+        let allId_AR = dataReserve.articles; // IDs de antiguos articulos reservados    
+        let newArticles = newData.articles;
         // Validar si se edita la lista de artículos
         if (newArticles) {
             // Borrar registros viejos de articulos reservados y retornar al inventario
@@ -332,9 +335,9 @@ const updateReserve = async (req, res) => {
                 // Retornar artículo al inventario
                 let idArticle = respArticle.msg.id;
                 let data = { quantity: respArticle.msg.quantity + 1 }
-                let respUpdateArticle = await commonService.updateModel(Article, data, idArticle);
+                await commonService.updateModel(Article, data, idArticle);
 
-                // Elimiar articulo reservado
+                // Eliminar articulo reservado
                 let respDeleteAR = await commonService.deleteModel(ArticleReserved, idAR);
                 if (!respDeleteAR.resp) return respDeleteAR;
             }
@@ -355,11 +358,15 @@ const updateReserve = async (req, res) => {
             }
         }
 
-        let newDataReserve = { endDate, description, articles: allId_AR };
+        let newDataReserve = { endDate, description, articles: allId_AR, invoiceNumber: 0 };
 
         // Actualizar reserva
         let response = await commonService.updateModel(Reserve, newDataReserve, reserveID);
         if (!response.resp) return res.status(400).send(response);
+
+        let idInvoice = dataReserve.invoiceNumber;
+        await invoiceService.disableInvoice(idInvoice);
+        
         return res.status(200).send(response);
     } catch (error) {
         console.log(error.message);

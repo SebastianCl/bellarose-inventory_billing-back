@@ -20,7 +20,7 @@ const invoice_controller = require('../controllers/invoice.controller');
 router.post('/createInvoice', invoice_controller.createInvoice);
 router.get('/getInvoices', invoice_controller.getInvoices);
 router.get('/getInvoice', invoice_controller.getInvoice);
-router.put('/updateInvoice', invoice_controller.updateInvoice);
+router.put('/payInvoice', invoice_controller.payInvoice);
 router.post('/disableInvoice', invoice_controller.disableInvoice);
 router.post('/findInvoiceWithFilter', invoice_controller.findInvoiceWithFilter);
 

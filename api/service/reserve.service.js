@@ -18,6 +18,8 @@ const ArticleReserved = require('../models/articleReserved.model');
 // Servicio común
 const commonService = require('../service/common.service');
 
+const moraCost = require('../config/config').moraCost;
+
 // Obtener el último número registrado de una reserva
 const getLastNumberReserve = async () => {
     try {
@@ -87,16 +89,18 @@ const finishReserve = async (reserveNumber, res) => {
         let articles = dataReserve.articles;
         let invoiceNumber = dataReserve.invoiceNumber;
 
-        // Validar si esta activa
+        // Validar si esta activa la reserva
         if (!activeReserve) return { resp: false, msg: 'La reserva no esta activa.' };
 
-        // Validar la factura        
+        // Validar si existe la factura        
         filter = { filters: ['invoiceNumber', invoiceNumber] };
         let respInvoice = await commonService.listModelsWithFilter(Invoice, filter);
         if (!respInvoice.resp) return { resp: false, msg: `La factura ${invoiceNumber} no existe.` };
 
-        let dataInvoice = respInvoice.msg[0];
+        let dataInvoice = respInvoice.msg[0]; // Datos de la factura
         let activeInvoice = dataInvoice.active;
+
+        // Validar si esta activa la factura
         if (!activeInvoice) return { resp: false, msg: `La factura ${invoiceNumber} no esta activa.` };
 
         // Regresar artículos al inventario y desactivar artículos reservados
@@ -119,9 +123,17 @@ const finishReserve = async (reserveNumber, res) => {
     }
 };
 
-const updateReserve = async () => {
+const calculateMora = async (endDate) => {
+    let todayDate = new Date(); // Fecha actual
 
+    const oneDay = 1000 * 60 * 60 * 24;
+    const today = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    const end = Date.UTC(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
+    let moraDays = (end - today) / oneDay; // Calcular total de dias mora
+
+    return moraDays < 0 ? 0 : moraDays * moraCost;
 }
+
 module.exports = {
     getLastNumberReserve,
     finishReserve,

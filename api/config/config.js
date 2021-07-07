@@ -5,6 +5,7 @@ module.exports = {
   'key_dev': 'bellarose-qa-7196b9c80b13.json',
   'version': '1.0.0',
   'bucketName_dev': 'bellarose-qa.appspot.com', //'bellarose-web-qa.appspot.com'
+  'moraCost': 10000
 };
 
 module.exports.configJWT = {
