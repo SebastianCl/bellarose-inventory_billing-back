@@ -130,5 +130,6 @@ async function deleteFile(filePathName) {
 
 module.exports = {
     uploadToStorage,
+    renameFile,
     deleteFile
 }

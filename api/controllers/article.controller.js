@@ -169,8 +169,8 @@ const updateArticle = async (req, res) => {
         let price = newData.price ? newData.price : dataArticle.price;
         let comments = newData.comments ? newData.comments : dataArticle.comments;
         let type = newData.type ? newData.type : dataArticle.type;
-        let brand = newData.brand ? newData.brand.trim() : dataArticle.type;
-        let color = newData.color ? newData.color.trim() : dataArticle.brand;
+        let brand = newData.brand ? newData.brand.trim() : dataArticle.brand;
+        let color = newData.color ? newData.color.trim() : dataArticle.color;
         let size = newData.size ? newData.size.trim() : dataArticle.size;
         size = size.toUpperCase();
         let reference = newData.reference ? newData.reference.trim() : dataArticle.reference;
@@ -180,6 +180,7 @@ const updateArticle = async (req, res) => {
 
         let imageBase64 = newData.imageBase64;
 
+        // Actualizar imagen
         let imageURL = dataArticle.imageURL;
         if (imageBase64) {
             let imageData = {
@@ -198,6 +199,16 @@ const updateArticle = async (req, res) => {
             let oldFilePathName = dataArticle.imageURL;
             responseStorage = await storageService.deleteFile(oldFilePathName);
             console.log(responseStorage);
+        }
+
+        // Actualizar ruta de imagen
+        if (newData.type || newData.brand || newData.color || newData.size || newData.reference) {
+
+            let oldFilePathName = dataArticle.imageURL;
+            let newFilePathName = `${type}/${brand}/${color}/${size}/${reference}.png`;
+            let respRename = await storageService.renameFile(oldFilePathName, newFilePathName);
+            imageURL = newFilePathName;
+            console.log(respRename);
         }
 
         let newDataArticle = { quantity, price, comments, type, brand, color, size, reference, available, imageURL };
