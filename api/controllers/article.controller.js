@@ -177,11 +177,9 @@ const updateArticle = async (req, res) => {
         reference = reference.toUpperCase();
         let available = newData.available === undefined ? dataArticle.available : newData.available;
 
-
-        let imageBase64 = newData.imageBase64;
-
         // Actualizar imagen
         let imageURL = dataArticle.imageURL;
+        let imageBase64 = newData.imageBase64;
         if (imageBase64) {
             let imageData = {
                 nameFile: reference,
@@ -197,12 +195,14 @@ const updateArticle = async (req, res) => {
 
             // Eliminar imagen anterior
             let oldFilePathName = dataArticle.imageURL;
-            responseStorage = await storageService.deleteFile(oldFilePathName);
-            console.log(responseStorage);
+            if (imageURL !== oldFilePathName) {
+                responseStorage = await storageService.deleteFile(oldFilePathName);
+                console.log(responseStorage);
+            }
         }
 
         // Actualizar ruta de imagen
-        if (newData.type || newData.brand || newData.color || newData.size || newData.reference) {
+        if (newData.type || newData.brand || newData.color || newData.size || newData.reference && !imageBase64) {
 
             let oldFilePathName = dataArticle.imageURL;
             let newFilePathName = `${type}/${brand}/${color}/${size}/${reference}.png`;
