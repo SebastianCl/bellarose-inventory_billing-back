@@ -26,19 +26,19 @@ async function subirArchivoBase64(imageData) {
     let res = { resp: false, code: 400, msg: '' };
     try {
         let image = imageData.imageBase64;
-        let type = 'png';
+        let formatImg = 'png'; // imageData.formatImg;
         let nameFile = imageData.nameFile;
         let routeFile = imageData.routeFile;
 
         let bufferStream = new stream.PassThrough(); // Armamos las propiedades del archivo base64
-        let fileFullName = nameFile + "." + type;
+        let fileFullName = nameFile + "." + formatImg;
         bufferStream.end(Buffer.from(image, 'base64'));
 
         let file = bucket.file(routeFile + "/" + fileFullName); // Definir el nombre del archivo
         // Metadata del archivo
         let configMetadata = {
             metadata: {
-                contentType: 'image/' + type,
+                contentType: 'image/' + formatImg,
                 metadata: {
                     custom: 'metadata'
                 }
@@ -92,7 +92,43 @@ const uploadToStorage = async (imageData) => {
  * fin FUNCIONES SUBIR ARCHIVO  *
  **************************/
 
+/**
+* @function renameFile
+* @description Permite renombrar un archivo de Storage
+*/
+async function renameFile(srcFilename, destFilename) {
+    let res = { resp: false, msg: '' };
+    try {
+        await bucket.file(srcFilename).move(destFilename); // Renombrar imagen
+        const file = bucket.file(destFilename); // Hacer pública la URL de la imagen
+        await file.makePublic();
+
+        res = { resp: true, msg: 'Imagen renombrada.' };
+        return res;
+    } catch (error) {
+        res.msg = 'Fallo al renombrar.';
+        return res;
+    }
+}
+
+/**
+ * @function deleteFile
+ * @description Permite eliminar un archivo de Storage
+ */
+async function deleteFile(filePathName) {
+    let res = { resp: false, msg: '' };
+    try {
+        await bucket.file(filePathName).delete();
+        res = { resp: true, msg: 'Imagen eliminada' };
+        console.log(`Imagen eliminada de: ${filePathName}`);
+        return res;
+    } catch (error) {
+        res = { msg: error };
+        return res;
+    }
+}
 
 module.exports = {
-    uploadToStorage
+    uploadToStorage,
+    deleteFile
 }

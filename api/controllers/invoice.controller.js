@@ -283,20 +283,17 @@ const findInvoiceWithFilter = async (req, res) => {
 
 const test = async (req, res) => {
     try {
-        let todayDate = new Date();
-        let endDate = new Date('08/30/2021');
+        /*
+        const query = await Invoice.query()
+            .filter('__key__', '>', Invoice.key(['Customer', '5080330100801536']))
+            .run();*/
 
-        const oneDay = 1000 * 60 * 60 * 24;
-        const today = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-        const end = Date.UTC(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate());
-        let moraDays = (end - today) / oneDay;
+        const query = await Invoice.query()
+            .filter('__key__', '=', 5632499082330112)
+            .limit(1)
+            .run();
 
-        console.log(todayDate);
-        console.log(endDate);
-
-        let moraTotalCost = moraDays < 1 ? 0 : moraDays * 10000;
-
-        return res.status(400).send({ resp: false, msg: moraTotalCost });
+        console.log(query);
     } catch (error) {
         console.log(error.message);
         return res.status(500).send({ resp: false, msg: error.message });

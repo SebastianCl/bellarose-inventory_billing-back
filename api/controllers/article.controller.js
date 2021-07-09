@@ -83,7 +83,10 @@ const createArticle = async (req, res) => {
 
         // Obtener caracteristicas del artículo, sin espacios en blanco y la referencia en mayusculas
         let data = req.body;
-        let type = data.type;
+        let quantity = data.quantity;
+        let price = data.price;
+        let comments = data.comments ? data.comments : '';
+        let type = data.type.trim();
         let brand = data.brand.trim();
         let color = data.color.trim();
         let size = data.size.trim();
@@ -93,7 +96,12 @@ const createArticle = async (req, res) => {
         let imageBase64 = data.imageBase64;
         let available = data.available;
 
-        // Validar si se envio el tipo imagen
+
+        // Validar si se envio la cantidad de articulos
+        if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar la cantidad.' });
+        // Validar si se envio el precio del articulo
+        if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar el precio.' });
+        // Validar si se envio el tipo articulo
         if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar el tipo.' });
         // Validar si se envio la marca
         if (validateData.isEmpty(brand)) return res.status(400).send({ resp: false, msg: 'Debe enviar la marca.' });
@@ -120,12 +128,12 @@ const createArticle = async (req, res) => {
             available
         };
 
-        let respondeStorage = await storageService.uploadToStorage(imageData);
-        if (!respondeStorage.resp) return res.status(400).send(respondeStorage);
+        let responseStorage = await storageService.uploadToStorage(imageData);
+        if (!responseStorage.resp) return res.status(400).send(responseStorage);
 
-        let imageURL = respondeStorage.msg.msg;
+        let imageURL = responseStorage.msg.msg;
 
-        let dataArticle = { type, brand, color, size, reference, available, imageURL };
+        let dataArticle = { quantity, price, comments, type, brand, color, size, reference, available, imageURL };
 
         let response = await commonService.createModel(Article, dataArticle);
         if (!response.resp) return res.status(400).send(response);
@@ -149,8 +157,52 @@ const updateArticle = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        let data = Article.sanitize(req.body);
-        let response = await commonService.updateModel(Article, data, id);
+        if (validateData.isEmpty(id)) return res.status(400).send({ resp: false, msg: 'Debe enviar el id del articulo.' });
+
+        let respArticle = await commonService.getModel(Article, id);
+        if (!respArticle.resp) return res.status(400).send({ resp: false, msg: 'No existe el articulo.' });
+
+        let dataArticle = respArticle.msg;
+
+        let newData = req.body;
+        let quantity = newData.quantity ? newData.quantity : dataArticle.quantity;
+        let price = newData.price ? newData.price : dataArticle.price;
+        let comments = newData.comments ? newData.comments : dataArticle.comments;
+        let type = newData.type ? newData.type : dataArticle.type;
+        let brand = newData.brand ? newData.brand.trim() : dataArticle.type;
+        let color = newData.color ? newData.color.trim() : dataArticle.brand;
+        let size = newData.size ? newData.size.trim() : dataArticle.size;
+        size = size.toUpperCase();
+        let reference = newData.reference ? newData.reference.trim() : dataArticle.reference;
+        reference = reference.toUpperCase();
+        let available = newData.available === undefined ? dataArticle.available : newData.available;
+
+
+        let imageBase64 = newData.imageBase64;
+
+        let imageURL = dataArticle.imageURL;
+        if (imageBase64) {
+            let imageData = {
+                nameFile: reference,
+                routeFile: `${type}/${brand}/${color}/${size}`,
+                imageBase64,
+                available
+            };
+            let responseStorage = await storageService.uploadToStorage(imageData);
+
+            if (!responseStorage.resp) return res.status(400).send(responseStorage);
+
+            imageURL = responseStorage.msg.msg;
+
+            // Eliminar imagen anterior
+            let oldFilePathName = dataArticle.imageURL;
+            responseStorage = await storageService.deleteFile(oldFilePathName);
+            console.log(responseStorage);
+        }
+
+        let newDataArticle = { quantity, price, comments, type, brand, color, size, reference, available, imageURL };
+
+        let response = await commonService.updateModel(Article, newDataArticle, id);
         if (!response.resp) return res.status(400).send(response);
         return res.status(200).send(response);
     } catch (error) {
