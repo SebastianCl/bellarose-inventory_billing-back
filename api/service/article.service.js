@@ -11,6 +11,7 @@
 
 // Modelo
 const Article = require('../models/article.model');
+const ArticleReserved = require('../models/articleReserved.model');
 
 // Servicio común
 const commonService = require('./common.service');
@@ -53,6 +54,60 @@ const saveArticle = async (itemData) => {
     return res;
 }
 
+// Validar si los artículos existen o estan disponible
+const articleStatus = async (articles) => {
+    let typeNumError = 0;
+    let resp = { resp: false, type: typeNumError, msg: '' };
+
+    let allBad = [];
+    let allDataArticles = [];
+
+    for (let reference of articles) {
+
+        let filter = { filters: ['reference', reference] };
+        let exist = await commonService.listModelsWithFilter(Article, filter);
+
+        // Validar si el artículo existe
+        if (!exist.resp) {
+            allBad.push({ reference, motive: 'No existe artículo con la referencia indicada.' });
+            typeNumError = 1; // FALLA por no existir artículo con referencia indicada
+            break;
+        }
+
+        const articleData = exist.msg[0];
+        // Si no hay articulos disponibles se busca la fecha más cercana
+        if (articleData.quantity === 0) {
+            let filterAR = { filters: [] };
+            filterAR.filters.push(['reference', articleData.reference]);
+            filterAR.filters.push(['active', true]);
+            let responseEarlyDate = await commonService.listModelsWithFilter(ArticleReserved, filterAR);
+            if (!responseEarlyDate.resp) return { resp: false, msg: 'Fallo al buscar el artículo reservado.' };
+
+            let listAR = responseEarlyDate.msg; // Lista de articulos reservados
+            // Ordenar lista ascendente
+            const listARorder = listAR.sort((a, b) => a.dateEnd - b.dateEnd);
+            const earlyDate = listARorder[0].dateEnd; // Fecha más cercana en que se devolvera el artículo
+
+            allBad.push({ reference, earlyDate });
+            typeNumError = 2; // FALLA por no disponibilidad
+            break;
+        }
+
+        const dataArticleReserved = { id: articleData.id, reference };
+        allDataArticles.push(dataArticleReserved);
+    }
+    if (allBad.length > 0) {
+        resp.msg = allBad;
+        resp.type = typeNumError;
+    }
+    else {
+        resp.msg = allDataArticles;
+        resp.resp = true;
+    }
+    return resp;
+}
+
 module.exports = {
-    saveArticle
+    saveArticle,
+    articleStatus
 }

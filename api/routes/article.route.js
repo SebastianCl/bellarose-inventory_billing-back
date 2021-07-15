@@ -23,5 +23,7 @@ router.get('/getArticle', article_controller.getArticle);
 router.put('/updateArticle', article_controller.updateArticle);
 router.delete('/deleteArticle', article_controller.deleteArticle);
 router.post('/findArticlesWithFilter', article_controller.findArticlesWithFilter);
+router.post('/validateAvailability', article_controller.validateAvailability);
+router.get('/suggestionsList', article_controller.suggestionsList);
 
 module.exports = router;

@@ -280,7 +280,65 @@ const findArticlesWithFilter = async (req, res) => {
         res.status(200).send(articleList);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
+    }
+}
+
+/**
+ * @function validateAvailability
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Valida la disponibilidad de articulos
+ */
+const validateAvailability = async (req, res) => {
+    try {
+        // Validar el token
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let articles = req.body.articles;
+        if (articles === undefined || articles.length === 0) return res.status(400).send({ resp: false, msg: 'Debe enviar al menos un articulo.' });
+
+        let respStatus = await articleService.articleStatus(articles);
+        if (!respStatus.resp) return res.status(400).send(respStatus);
+
+        return res.status(200).send(respStatus);
+
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send({ resp: false, msg: error.message });
+    }
+
+}
+
+
+/**
+* @function suggestionsList
+* @description Genera un arreglo con palabras sugeridas para busqueda de imágenes
+*/
+/**
+ * @function suggestionsList
+ * @param {Request} req Obtener parametros de cabecera
+ * @param {Response} res Obtener valores del Body
+ * @description Generar lista de referencias de articulos
+ */
+const suggestionsList = async (req, res) => {
+    let response = { resp: false, msg: 'Fallo al generar las sugerencias.' };
+    try {
+        let listSuggestions = [];
+        // Consultar registros de imágenes cargadas para crear sugerencias
+        let articlesData = await commonService.getModels(Article);
+        if (!articlesData.resp) return response;
+
+        // Crear lista de referencias registradas
+        articlesData.msg.forEach(data => { listSuggestions.push(data.reference); });
+
+        response.resp = true;
+        response.msg = listSuggestions;
+        return res.status(200).send(response);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send(response);
     }
 }
 
@@ -291,5 +349,7 @@ module.exports = {
     createArticle,
     updateArticle,
     deleteArticle,
-    findArticlesWithFilter
+    findArticlesWithFilter,
+    validateAvailability,
+    suggestionsList
 };
