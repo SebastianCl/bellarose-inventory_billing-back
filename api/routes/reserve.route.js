@@ -24,5 +24,6 @@ router.put('/updateReserve', reserve_controller.updateReserve);
 router.delete('/deleteReserve', reserve_controller.deleteReserve);
 router.post('/findReserveWithFilter', reserve_controller.findReserveWithFilter);
 router.post('/finishReserve', reserve_controller.finishReserve);
+router.post('/assingInvoice', reserve_controller.assingInvoice);
 
 module.exports = router;

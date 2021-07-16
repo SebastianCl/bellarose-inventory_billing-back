@@ -32,8 +32,9 @@ const invoiceSchema = new Schema({
     payment: { type: Number, read: true, required: true },
     description: { type: String, read: true, required: true },
     date: { type: Date, required: false, default: gstore.defaultValues.NOW },
-    active: { type: Boolean, read: true, default: true },
-    disable: { type: Boolean, read: true, default: false }
+    active: { type: Boolean, read: true, default: true }, // false: al pagar el total de la factura
+    disable: { type: Boolean, read: true, default: false }, // true: si se solicita deshabilitar
+    type: { type: String, required: false } // Reserva:1, Venta:2, Daños:3
 });
 
 // Exportar el esquema de base de datos como 'Invoice'

@@ -166,7 +166,7 @@ const payInvoice = async (req, res) => {
         let invoiceNumber = req.body.invoiceNumber;
         let payment = req.body.payment;
 
-        // Validar datos
+        // Validar si envio datos
         if (invoiceNumber === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la factura.' });
         if (payment === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar el abono de la factura.' });
 
@@ -193,13 +193,7 @@ const payInvoice = async (req, res) => {
         let newPayment = lastPayment + payment; // Sumar ultimo pago con el nuevo abono
 
         // Desactivar factura si se completo el pago total
-        if (total === newPayment) {
-            active = false;
-            const reserveNumber = invoiceData.reserveNumber;
-            // Finalizar reserva
-            let respFinish = await reserveService.finishReserve(reserveNumber);
-            if (!respFinish.resp) return res.status(400).send(respFinish);
-        }
+        if (total === newPayment) active = false;
 
         let newDataInvoice = { payment: newPayment, active };
 

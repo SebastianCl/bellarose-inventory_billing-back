@@ -87,26 +87,13 @@ const finishReserve = async (reserveNumber, res) => {
         let id = dataReserve.id;
         let activeReserve = dataReserve.active;
         let articles = dataReserve.articles;
-        let invoiceNumber = dataReserve.invoiceNumber;
 
         // Validar si esta activa la reserva
         if (!activeReserve) return { resp: false, msg: 'La reserva no esta activa.' };
 
-        // Validar si existe la factura        
-        filter = { filters: ['invoiceNumber', invoiceNumber] };
-        let respInvoice = await commonService.listModelsWithFilter(Invoice, filter);
-        if (!respInvoice.resp) return { resp: false, msg: `La factura ${invoiceNumber} no existe.` };
-
-        let dataInvoice = respInvoice.msg[0]; // Datos de la factura
-        let activeInvoice = dataInvoice.active;
-
-        // Validar si esta activa la factura
-        if (!activeInvoice) return { resp: false, msg: `La factura ${invoiceNumber} no esta activa.` };
-
         // Regresar artículos al inventario y desactivar artículos reservados
         for (let index = 0; index < articles.length; index++) {
             const id_AR = articles[index];
-
             // Devolver artículos
             let updatesArticle = await returnArticles(id_AR, false);
             if (!updatesArticle.resp) return res.status(400).send(updatesArticle);
@@ -115,7 +102,7 @@ const finishReserve = async (reserveNumber, res) => {
         // Deshabilitar reserva
         let newData = { active: false };
         let response = await commonService.updateModel(Reserve, newData, id);
-        if (!response.resp) return { resp: false, msg: `La reserva ${invoiceNumber} no se actualizo.` };
+        if (!response.resp) return { resp: false, msg: `La reserva ${reserveNumber} no se actualizo.` };
         return { resp: true, msg: 'Reserva finalizada.' };
     } catch (error) {
         console.log(error.message);
