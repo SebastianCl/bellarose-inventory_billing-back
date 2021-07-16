@@ -21,8 +21,6 @@ const config = require('../config/config'); // Configuración de api
 
 /**
  * @function uploadToStorage
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite subir un archivo de imagen en base64
  */
 const uploadToStorage = async (req, res) => {
@@ -57,8 +55,6 @@ const uploadToStorage = async (req, res) => {
 
 /**
  * @function uploadMassiveToStorage
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite subir varios archivos de imagen
  */
 const uploadMassiveToStorage = async (req, res) => {
@@ -138,8 +134,6 @@ const uploadMassiveToStorage = async (req, res) => {
 
 /**
  * @function downloadAllFolder
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite generar todas las imágenes de una ruta en formato zip
  */
 const downloadAllFolder = async (req, res) => {
@@ -183,8 +177,6 @@ function validateConvert(type, width, higth) {
 
 /**
  * @function imgConvert
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite convertir el formato y dimensiones de imagen
  */
 const imgConvert = async (req, res) => {
@@ -215,8 +207,6 @@ const imgConvert = async (req, res) => {
 
 /**
  * @function imgConvertAll
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite convertir el formato y dimensiones de varias imágenes
  */
 const imgConvertAll = async (req, res) => {
@@ -254,8 +244,6 @@ const imgConvertAll = async (req, res) => {
 
 /**
  * @function findImagesWithFilter
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Busca los registro de imágenes por filtro
  */
 const findImagesWithFilter = async (req, res) => {
@@ -272,8 +260,6 @@ const findImagesWithFilter = async (req, res) => {
 
 /**
  * @function generateReport
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Genera un reporte en excel con la lista de imágenes en storage
  */
 const generateReport = async (req, res) => {
@@ -288,8 +274,6 @@ const generateReport = async (req, res) => {
 
 /**
  * @function generateReportOfFilter
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Genera un reporte en excel con la lista de imágenes en storage por filtro
  */
 const generateReportOfFilter = async (req, res) => {
@@ -309,8 +293,6 @@ const generateReportOfFilter = async (req, res) => {
 
 /**
  * @function deleteFiles
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Elimina imágenes de Storage
  */
 const deleteImages = async (req, res) => {

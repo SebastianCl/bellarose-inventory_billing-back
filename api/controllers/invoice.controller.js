@@ -29,8 +29,6 @@ const auth = require('../auth/securityJWT');
 
 /**
  * @function getInvoice
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite listar todas los facturas
  */
 const getInvoices = async (req, res) => {
@@ -50,8 +48,6 @@ const getInvoices = async (req, res) => {
 
 /**
  * @function getInvoice
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener una factura filtrado por ID.
  */
 const getInvoice = async (req, res) => {
@@ -89,8 +85,6 @@ const getInvoice = async (req, res) => {
 
 /**
  * @function createInvoice
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear una factura nueva en el DataStore
  */
 const createInvoice = async (req, res) => {
@@ -153,8 +147,6 @@ const createInvoice = async (req, res) => {
 
 /**
  * @function payInvoice
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite pagar una factura especifico por ID
  */
 const payInvoice = async (req, res) => {
@@ -209,8 +201,6 @@ const payInvoice = async (req, res) => {
 
 /**
  * @function disableInvoice
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite deshabilitar una factura especifica por ID
  */
 const disableInvoice = async (req, res) => {
@@ -233,8 +223,6 @@ const disableInvoice = async (req, res) => {
 
 /**
  * @function findInvoiceWithFilter
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Busca los registro de facturas por filtro
  */
 const findInvoiceWithFilter = async (req, res) => {

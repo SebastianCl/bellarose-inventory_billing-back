@@ -25,8 +25,6 @@ const auth = require('../auth/securityJWT');
 
 /**
  * @function getEmployees
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite listar todas los employees
  */
 const getEmployees = async (req, res) => {
@@ -46,8 +44,6 @@ const getEmployees = async (req, res) => {
 
 /**
  * @function getEmployee
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener un employee filtrado por ID.
  */
 const getEmployee = async (req, res) => {
@@ -68,8 +64,6 @@ const getEmployee = async (req, res) => {
 
 /**
  * @function createEmployee
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear un employee nueva en el DataStore
  */
 const createEmployee = async (req, res) => {
@@ -98,8 +92,6 @@ const createEmployee = async (req, res) => {
 
 /**
  * @function updateEmployee
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite actualizar un employee especifico por ID
  */
 const updateEmployee = async (req, res) => {
@@ -122,8 +114,6 @@ const updateEmployee = async (req, res) => {
 
 /**
  * @function deleteEmployee
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite eliminar un employee especifico por ID
  */
 const deleteEmployee = async (req, res) => {
@@ -144,8 +134,6 @@ const deleteEmployee = async (req, res) => {
 
 /**
  * @function findEmployeesWithFilter
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Busca los registro de employees por filtro
  */
 const findEmployeesWithFilter = async (req, res) => {

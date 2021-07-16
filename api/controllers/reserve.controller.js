@@ -34,8 +34,6 @@ const validateData = require('../tools/validations/validateData');
 
 /**
  * @function getReserves
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite listar todas los reserves
  */
 const getReserves = async (req, res) => {
@@ -55,8 +53,6 @@ const getReserves = async (req, res) => {
 
 /**
  * @function getReserve
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener un reserve filtrado por ID.
  */
 const getReserve = async (req, res) => {
@@ -170,8 +166,6 @@ async function createAR(dataArticleReserved) {
 
 /**
  * @function createReserve
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear un reserva nueva en el DataStore
  */
 const createReserve = async (req, res) => {
@@ -261,8 +255,6 @@ const createReserve = async (req, res) => {
 
 /**
  * @function finishReserve
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite finalizar una reserva especifica por ID
  */
 const finishReserve = async (req, res) => {
@@ -287,8 +279,6 @@ const finishReserve = async (req, res) => {
 
 /**
  * @function updateReserve
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite actualizar una reserva especifica por ID
  */
 const updateReserve = async (req, res) => {
@@ -378,8 +368,6 @@ const updateReserve = async (req, res) => {
 
 /**
  * @function assingInvoice
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite asignar una factura a una reserva
  */
 const assingInvoice = async (req, res) => {
@@ -419,8 +407,6 @@ const assingInvoice = async (req, res) => {
 
 /**
  * @function deleteReserve
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite eliminar un reserve especifico por ID
  */
 const deleteReserve = async (req, res) => {
@@ -464,8 +450,6 @@ const deleteReserve = async (req, res) => {
 
 /**
  * @function findReserveWithFilter
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Busca los registro de reserves por filtro
  */
 const findReserveWithFilter = async (req, res) => {

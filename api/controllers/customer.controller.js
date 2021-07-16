@@ -25,8 +25,6 @@ const auth = require('../auth/securityJWT');
 
 /**
  * @function getCustomer
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite listar todas los clientes
  */
 const getCustomers = async (req, res) => {
@@ -46,8 +44,6 @@ const getCustomers = async (req, res) => {
 
 /**
  * @function getCustomer
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener un clientes filtrado por ID.
  */
 const getCustomer = async (req, res) => {
@@ -68,8 +64,6 @@ const getCustomer = async (req, res) => {
 
 /**
  * @function createCustomer
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear un clientes nueva en el DataStore
  */
 const createCustomer = async (req, res) => {
@@ -98,8 +92,6 @@ const createCustomer = async (req, res) => {
 
 /**
  * @function updateCustomer
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite actualizar un clientes especifico por ID
  */
 const updateCustomer = async (req, res) => {
@@ -122,8 +114,6 @@ const updateCustomer = async (req, res) => {
 
 /**
  * @function deleteCustomer
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite eliminar un clientes especifico por ID
  */
 const deleteCustomer = async (req, res) => {

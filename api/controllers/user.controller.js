@@ -27,8 +27,6 @@ const userService = require('../service/user.service');
 
 /**
  * @function getLogin
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite autenticar al usuario con la clave. Se retorna un token valido
  */
 const getLogin = async (req, res) => {
@@ -46,8 +44,6 @@ const getLogin = async (req, res) => {
 
 /**
  * @function createUser
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear un usuario nuevo en el DataStore
  */
 const createUser = async (req, res) => {
@@ -82,8 +78,6 @@ const createUser = async (req, res) => {
 
 /**
  * @function updateUser
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite actualizar un usuario especifico por ID
  */
 const updateUser = async (req, res) => {
@@ -122,8 +116,6 @@ const updateUser = async (req, res) => {
 
 /**
  * @function getUsers
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite listar todos los usuarios registrados
  */
 const getUsers = async (req, res) => {
@@ -141,8 +133,6 @@ const getUsers = async (req, res) => {
 
 /**
  * @function getUser
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener un usuario filtrado por ID. Para este proyecto no sera necesario utilizarlo
  */
 const getUser = async (req, res) => {
@@ -164,8 +154,6 @@ const getUser = async (req, res) => {
 
 /**
  * @function deleteUser
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite eliminar un usuario especifico por ID
  */
 const deleteUser = async (req, res) => {
@@ -184,8 +172,6 @@ const deleteUser = async (req, res) => {
 
 /**
  * @function getRoles
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener la lista de roles
  */
 const getRoles = async (req, res) => {
@@ -200,8 +186,6 @@ const getRoles = async (req, res) => {
 
 /**
  * @function getRole
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener un rol filtrado por ID.
  */
 const getRole = async (req, res) => {
@@ -218,8 +202,6 @@ const getRole = async (req, res) => {
 
 /**
  * @function createRole
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear un rol nuevo en DataStore
  */
 const createRole = async (req, res) => {
@@ -236,8 +218,6 @@ const createRole = async (req, res) => {
 
 /**
  * @function deleteRole
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite eliminar un rol especifico por ID
  */
 const deleteRole = async (req, res) => {

@@ -25,8 +25,6 @@ const auth = require('../auth/securityJWT');
 
 /**
  * @function getArticleReserveds
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite listar todas los artículos reservados
  */
 const getArticleReserveds = async (req, res) => {
@@ -46,8 +44,6 @@ const getArticleReserveds = async (req, res) => {
 
 /**
  * @function getArticleReserved
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener un artículo reservado filtrado por ID.
  */
 const getArticleReserved = async (req, res) => {
@@ -68,8 +64,6 @@ const getArticleReserved = async (req, res) => {
 
 /**
  * @function createArticleReserved
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear un artículo reservado nueva en el DataStore
  */
 const createArticleReserved = async (req, res) => {
@@ -90,8 +84,6 @@ const createArticleReserved = async (req, res) => {
 
 /**
  * @function updateArticleReserved
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite actualizar un artículo reservado especifico por ID
  */
 const updateArticleReserved = async (req, res) => {
@@ -114,8 +106,6 @@ const updateArticleReserved = async (req, res) => {
 
 /**
  * @function deleteArticleReserved
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite eliminar un artículo reservado especifico por ID
  */
 const deleteArticleReserved = async (req, res) => {
@@ -136,8 +126,6 @@ const deleteArticleReserved = async (req, res) => {
 
 /**
  * @function findArticleReservedsWithFilter
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Busca los registro de artículos reservados por filtro
  */
 const findArticleReservedsWithFilter = async (req, res) => {

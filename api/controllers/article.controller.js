@@ -29,8 +29,6 @@ const validateData = require('../tools/validations/validateData'); // Scripts de
 
 /**
  * @function getArticles
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite listar todas los articles
  */
 const getArticles = async (req, res) => {
@@ -50,8 +48,6 @@ const getArticles = async (req, res) => {
 
 /**
  * @function getArticle
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite obtener un articulo filtrado por ID.
  */
 const getArticle = async (req, res) => {
@@ -71,8 +67,6 @@ const getArticle = async (req, res) => {
 
 /**
  * @function createArticle
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite crear un articulo nueva en el DataStore
  */
 const createArticle = async (req, res) => {
@@ -146,8 +140,6 @@ const createArticle = async (req, res) => {
 
 /**
  * @function updateArticle
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite actualizar un articulo especifico por ID
  */
 const updateArticle = async (req, res) => {
@@ -225,8 +217,6 @@ const updateArticle = async (req, res) => {
 
 /**
  * @function deleteArticle
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Permite eliminar un articulo especifico por ID
  */
 const deleteArticle = async (req, res) => {
@@ -247,8 +237,6 @@ const deleteArticle = async (req, res) => {
 
 /**
  * @function findArticlesWithFilter
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Busca los registro de articles por filtro
  */
 const findArticlesWithFilter = async (req, res) => {
@@ -286,8 +274,6 @@ const findArticlesWithFilter = async (req, res) => {
 
 /**
  * @function validateAvailability
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Valida la disponibilidad de articulos
  */
 const validateAvailability = async (req, res) => {
@@ -318,8 +304,6 @@ const validateAvailability = async (req, res) => {
 */
 /**
  * @function suggestionsList
- * @param {Request} req Obtener parametros de cabecera
- * @param {Response} res Obtener valores del Body
  * @description Generar lista de referencias de articulos
  */
 const suggestionsList = async (req, res) => {
