@@ -94,8 +94,6 @@ const createInvoice = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let reserveID = req.body.reserve;
-        let subTotal = req.body.subTotal;
-        let cost = req.body.cost;
         let deposit = req.body.deposit;
         let payment = req.body.payment;
         let description = req.body.description;
@@ -114,8 +112,10 @@ const createInvoice = async (req, res) => {
         if (!respReserve.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva con id ${reserveID}.` });
         let dataReserve = respReserve.msg.entityData;
         let keyReserve = respReserve.msg.entityKey;
+
         // Validar si la reserva esta activa
         if (!dataReserve.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
+
         // Validar si la reserva esta asociada a una factura
         if (dataReserve.invoiceNumber !== 0) return res.status(400).send({ resp: false, msg: 'La reserva ya tiene una factura asociada.' });
 
@@ -123,10 +123,11 @@ const createInvoice = async (req, res) => {
         let customerIdentification = dataReserve.customerIdentification;
         let employeeName = dataReserve.employeeName;
         let reserveNumber = dataReserve.reserveNumber;
+        let cost = dataReserve.cost;
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
-            subTotal, cost, deposit, payment, description, active
+            cost, deposit, payment, description, active
         }
 
         // Crear factura
@@ -174,18 +175,18 @@ const payInvoice = async (req, res) => {
         if (!invoiceData.active || invoiceData.disable) return res.status(400).send({ resp: false, msg: `La factura ${invoiceNumber} esta inactiva.` });
 
         let id = invoiceData.id;
-        let total = invoiceData.cost;
+        let cost = invoiceData.cost;
         let lastPayment = invoiceData.payment;
-        let remaining = total - lastPayment;
+        let remaining = cost - lastPayment;
         let active = true;
 
         // Validar si el pago sobrepasa lo faltante
-        if (payment > remaining) return res.status(400).send({ resp: false, msg: 'Sobrepasa el total de la factura.' });
+        if (payment > remaining) return res.status(400).send({ resp: false, msg: 'Sobrepasa el costo total de la factura.' });
 
         let newPayment = lastPayment + payment; // Sumar ultimo pago con el nuevo abono
 
         // Desactivar factura si se completo el pago total
-        if (total === newPayment) active = false;
+        if (cost === newPayment) active = false;
 
         let newDataInvoice = { payment: newPayment, active };
 

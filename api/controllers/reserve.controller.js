@@ -165,6 +165,25 @@ async function createAR(dataArticleReserved) {
 }
 
 /**
+ * @function calculateCost
+ * @description Calcula el costo total de una reserva
+ */
+function calculateCost(articles) {
+    let cost = 0;
+
+    for (let index = 0; index < articles.length; index++) {
+        const article = articles[index];
+
+        // Calcular costo de artículo
+        let articlePrice = article.price - (article.price * (article.discount / 100));
+
+        cost = cost + articlePrice;
+    }
+
+    return cost;
+}
+
+/**
  * @function createReserve
  * @description Permite crear un reserva nueva en el DataStore
  */
@@ -234,6 +253,8 @@ const createReserve = async (req, res) => {
         if (!respondeReserve.resp) return res.status(401).send({ resp: false, typeNumError: 3, msg: 'No se obtuvo el número de reserva.' });
 
         const reserveNumber = respondeReserve.msg + 1; // Asignar nuevo número de reserva
+        let cost = calculateCost(articles); // Obtener costo de reserva
+
         // Completar datos y crear reserva
         const newReserve = {
             customer: customerKey, employee: employeeKey,
@@ -241,8 +262,10 @@ const createReserve = async (req, res) => {
             description,
             startDate, endDate,
             reserveNumber,
-            articles: allId_AR
+            articles: allId_AR,
+            cost
         };
+        // Crear reserva
         let createdReserve = await commonService.createModel(Reserve, newReserve);
         if (!createdReserve.resp) return res.status(400).send({ resp: false, typeNumError: 4, msg: createdReserve.msg });
 
@@ -278,10 +301,10 @@ const finishReserve = async (req, res) => {
 };
 
 /**
- * @function updateReserve
+ * @function editReserve
  * @description Permite actualizar una reserva especifica por ID
  */
-const updateReserve = async (req, res) => {
+const editReserve = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
@@ -298,7 +321,6 @@ const updateReserve = async (req, res) => {
         // Validar si la reserva esta activa
         if (!dataReserve.active) return res.status(400).send({ resp: false, msg: 'No se puede editar una reserva cerrada.' });
 
-
         let newData = req.body; // Nuevos datos de la reserva
 
         // Si se actualiza la fecha final
@@ -308,6 +330,7 @@ const updateReserve = async (req, res) => {
 
         let allId_AR = dataReserve.articles; // IDs de antiguos articulos reservados    
         let newArticles = newData.articles;
+        let cost = dataReserve.cost;
         // Validar si se edita la lista de artículos
         if (newArticles) {
             // Borrar registros viejos de articulos reservados y retornar al inventario
@@ -348,9 +371,12 @@ const updateReserve = async (req, res) => {
                 const idAR = isCreateAR.msg.id; // ID de registro de artículo reservado
                 allId_AR.push(idAR);
             }
+
+            // Calcular costo de reserva
+            cost = calculateCost(newArticles);
         }
 
-        let newDataReserve = { endDate, description, articles: allId_AR, invoiceNumber: 0 };
+        let newDataReserve = { endDate, description, articles: allId_AR, invoiceNumber: 0, cost };
 
         // Actualizar reserva
         let response = await commonService.updateModel(Reserve, newDataReserve, reserveID);
@@ -493,7 +519,7 @@ module.exports = {
     getReserves,
     getReserve,
     createReserve,
-    updateReserve,
+    editReserve,
     deleteReserve,
     findReserveWithFilter,
     finishReserve,

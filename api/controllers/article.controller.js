@@ -22,7 +22,7 @@ const storageService = require('../service/storage.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 // Validaciones
-const validateData = require('../tools/validations/validateData'); // Scripts de validaciones>
+const validateData = require('../tools/validations/validateData'); // Scripts de validaciones
 /**************************
  * FIN DEPENDENCIAS       *
  **************************/

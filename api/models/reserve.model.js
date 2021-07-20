@@ -33,7 +33,8 @@ const reserveSchema = new Schema({
     endDate: { type: Date, required: true },
     reserveNumber: { type: Number, required: true },
     invoiceNumber: { type: Number, required: false, default: 0 },
-    active: { type: Boolean, required: false, default: true }
+    active: { type: Boolean, required: false, default: true },
+    cost: { type: Number, required: true }
 });
 
 reserveSchema.queries('list');

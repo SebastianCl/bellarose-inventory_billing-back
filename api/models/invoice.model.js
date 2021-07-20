@@ -26,7 +26,6 @@ const invoiceSchema = new Schema({
     employeeName: { type: String, required: true },
     reserveNumber: { type: Number, required: true },
     invoiceNumber: { type: Number, required: true },
-    subTotal: { type: Number, read: true, required: true },
     cost: { type: Number, read: true, required: true },
     deposit: { type: Number, read: true, required: true },
     payment: { type: Number, read: true, required: true },
