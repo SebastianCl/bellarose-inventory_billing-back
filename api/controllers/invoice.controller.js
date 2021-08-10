@@ -83,29 +83,43 @@ const getInvoice = async (req, res) => {
     }
 };
 
-/**
- * @function createInvoice
- * @description Permite crear una factura nueva en el DataStore
- */
-const createInvoice = async (req, res) => {
-    try {
-        // Validar el token 
-        let resToken = auth.verifyToken(req);
-        if (!resToken.resp) return res.status(401).send(resToken);
+const getNewNumberInvoice = async () => {
 
-        let reserveID = req.body.reserve;
-        let deposit = req.body.deposit;
-        let payment = req.body.payment;
-        let description = req.body.description;
+    let res = { resp: false, msg: 'No se obtuvo el último número de factura.' };
+
+    // Obtener último número de factura
+    let respondeInvoice = await invoiceService.getLastNumberInvoice();
+    // Validar si se obtuvo respuesta de la ultima factura
+    if (!respondeInvoice.resp) return res;
+
+    const newInvoiceNumber = respondeInvoice.msg + 1; // Asignar nuevo número de factura
+    res.resp = true;
+    res.msg = newInvoiceNumber;
+
+    return res;
+}
+
+/**
+ * @function createInvoiceReserve
+ * @description Permite crear una factura de una reserva
+ */
+const createInvoiceReserve = async (body) => {
+    try {
+        let res = { code: 400, msg: { resp: false, msg: '' } };
+
+        let reserveID = body.reserve;
+        let deposit = body.deposit;
+        let payment = body.payment;
+        let description = body.description;
         let active = true;
 
-        // Obtener último número de factura
-        let respondeInvoice = await invoiceService.getLastNumberInvoice();
-        // Validar si se obtuvo respuesta de la ultima factura
-        if (!respondeInvoice.resp) return res.status(400).send({ resp: false, msg: 'No se obtuvo el último número de factura.' });
+        let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
+        if (!respInvoiceNumber.resp) {
+            res.msg.msg = 'No se pudo obtener el nuevo número de factura';
+            return res;
+        }
 
-        // Asignar nuevo número de factura
-        const invoiceNumber = respondeInvoice.msg + 1;
+        let invoiceNumber = respInvoiceNumber.msg; // Nuevo número de factura
 
         // Validar si existe la reserva
         let respReserve = await commonService.getModel(Reserve, reserveID, true);
@@ -114,37 +128,186 @@ const createInvoice = async (req, res) => {
         let keyReserve = respReserve.msg.entityKey;
 
         // Validar si la reserva esta activa
-        if (!dataReserve.active) return res.status(400).send({ resp: false, msg: 'La reserva esta inactiva.' });
+        if (!dataReserve.active) {
+            res.msg.msg = 'La reserva esta inactiva';
+            return res;
+        }
 
         // Validar si la reserva esta asociada a una factura
-        if (dataReserve.invoiceNumber !== 0) return res.status(400).send({ resp: false, msg: 'La reserva ya tiene una factura asociada.' });
+        if (dataReserve.invoiceNumber !== 0) {
+            res.msg.msg = 'La reserva ya tiene una factura asociada.';
+            return res;
+        }
 
         let customerName = dataReserve.customerName;
         let customerIdentification = dataReserve.customerIdentification;
         let employeeName = dataReserve.employeeName;
-        let reserveNumber = dataReserve.reserveNumber;
         let cost = dataReserve.cost;
 
         let data = {
-            reserve: keyReserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
+            reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
             cost, deposit, payment, description, active
         }
 
         // Crear factura
         let respInvoice = await commonService.createModel(Invoice, data);
-        if (!respInvoice.resp) return res.status(400).send(respInvoice);
+        if (!respInvoice.resp) {
+            res.msg = respInvoice;
+            return res;
+        }
 
         // Actualizar reserva con número de factura
         let newDataReserve = { invoiceNumber };
         let updateReserve = await commonService.updateModel(Reserve, newDataReserve, reserveID);
-        if (!updateReserve.resp) return res.status(400).send(updateReserve);
+        if (!updateReserve.resp) {
+            res.msg = updateReserve;
+            return res;
+        }
 
-        return res.status(200).send(respInvoice);
+        res.code = 200;
+        res.msg = respInvoice;
+        return res;
+    } catch (error) {
+        console.log(error.message);
+        res.code = 500;
+        resp.msg.msg = error.message
+        return res;
+    }
+};
+
+/**
+ * @function createInvoiceSale
+ * @description Permite crear una factura nueva de tipo venta
+ */
+const createInvoiceSale = async (body) => {
+    try {
+        let res = { code: 400, msg: { resp: false, msg: '' } };
+
+        let deposit = body.deposit;
+        let payment = body.payment;
+        let description = body.description;
+        let active = true;
+
+        let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
+        if (!respInvoiceNumber.resp) {
+            res.msg.msg = 'No se pudo obtener el nuevo número de factura';
+            return res;
+        }
+
+        let invoiceNumber = respInvoiceNumber.msg;
+
+
+        let customerName = dataReserve.customerName;
+        let customerIdentification = dataReserve.customerIdentification;
+        let employeeName = dataReserve.employeeName;
+        let cost = dataReserve.cost;
+
+        let data = {
+            reserve: keyReserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
+            cost, deposit, payment, description, active, type
+        }
+
+        // Crear factura
+        let respInvoice = await commonService.createModel(Invoice, data);
+        if (!respInvoice.resp) {
+            res.msg = respInvoice;
+            return res;
+        }
+
+        res.code = 200;
+        res.msg = respInvoice;
+        return res;
+    } catch (error) {
+        res.code = 500;
+        resp.msg.msg = error.message
+        return res;
+    }
+}
+
+/**
+ * @function createInvoiceDemage
+ * @description Permite crear una factura nueva de tipo daño
+ */
+const createInvoiceDemage = async (body) => {
+    try {
+        let res = { code: 400, msg: { resp: false, msg: '' } };
+
+        let deposit = body.deposit;
+        let payment = body.payment;
+        let description = body.description;
+        let active = true;
+
+        let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
+        if (!respInvoiceNumber.resp) {
+            res.msg.msg = 'No se pudo obtener el nuevo número de factura';
+            return res;
+        }
+
+        let invoiceNumber = respInvoiceNumber.msg;
+
+
+        let customerName = dataReserve.customerName;
+        let customerIdentification = dataReserve.customerIdentification;
+        let employeeName = dataReserve.employeeName;
+        let cost = dataReserve.cost;
+
+        let data = {
+            reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
+            cost, deposit, payment, description, active, type
+        }
+
+        // Crear factura
+        let respInvoice = await commonService.createModel(Invoice, data);
+        if (!respInvoice.resp) {
+            res.msg = respInvoice;
+            return res;
+        }
+
+        res.code = 200;
+        res.msg = respInvoice;
+        return res;
+    } catch (error) {
+        res.code = 500;
+        resp.msg.msg = error.message
+        return res;
+    }
+}
+
+
+/**
+ * @function createInvoiceSale
+ * @description Permite crear una factura nueva de tipo venta
+ */
+const createInvoice = async (req, res) => {
+    try {
+        // Validar el token 
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let body = req.body;
+        let type = body.type;
+        let respInvoice;
+
+        switch (type) {
+            case 1:
+                respInvoice = await createInvoiceReserve(body);
+                break;
+            case 2:
+                respInvoice = await createInvoiceSale(body);
+                break;
+            case 3:
+                respInvoice = await createInvoiceDemage(body);
+                break;
+            default:
+                return res.status(400).send({ resp: false, msg: 'Debe indicar el tipo de factura.' });
+        }
+
+        return res.status(respInvoice.code).send(respInvoice.msg);
     } catch (error) {
         console.log(error.message);
         return res.status(500).send({ resp: false, msg: error.message });
     }
-};
+}
 
 /**
  * @function payInvoice
