@@ -146,7 +146,7 @@ const createInvoiceReserve = async (body) => {
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, deposit, payment, description, active
+            cost, deposit, payment, description, active, type: 1
         }
 
         // Crear factura
@@ -183,8 +183,7 @@ const createInvoiceSale = async (body) => {
     try {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
-        let deposit = body.deposit;
-        let payment = body.payment;
+        let cost = body.cost;
         let description = body.description;
         let active = true;
 
@@ -197,14 +196,13 @@ const createInvoiceSale = async (body) => {
         let invoiceNumber = respInvoiceNumber.msg;
 
 
-        let customerName = dataReserve.customerName;
-        let customerIdentification = dataReserve.customerIdentification;
-        let employeeName = dataReserve.employeeName;
-        let cost = dataReserve.cost;
+        let customerName = body.customerName;
+        let customerIdentification = body.customerIdentification;
+        let employeeName = body.employeeName;
 
         let data = {
-            reserve: keyReserve, customerName, customerIdentification, employeeName, reserveNumber, invoiceNumber,
-            cost, deposit, payment, description, active, type
+            reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
+            cost, description, active, type: 2
         }
 
         // Crear factura
@@ -213,6 +211,8 @@ const createInvoiceSale = async (body) => {
             res.msg = respInvoice;
             return res;
         }
+
+        //TODO: Retirar item del inventario
 
         res.code = 200;
         res.msg = respInvoice;
@@ -232,8 +232,7 @@ const createInvoiceDemage = async (body) => {
     try {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
-        let deposit = body.deposit;
-        let payment = body.payment;
+        let cost = body.cost;
         let description = body.description;
         let active = true;
 
@@ -245,15 +244,13 @@ const createInvoiceDemage = async (body) => {
 
         let invoiceNumber = respInvoiceNumber.msg;
 
-
-        let customerName = dataReserve.customerName;
-        let customerIdentification = dataReserve.customerIdentification;
-        let employeeName = dataReserve.employeeName;
-        let cost = dataReserve.cost;
+        let customerName = body.customerName;
+        let customerIdentification = body.customerIdentification;
+        let employeeName = body.employeeName;
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, deposit, payment, description, active, type
+            cost, description, active, type: 3
         }
 
         // Crear factura
