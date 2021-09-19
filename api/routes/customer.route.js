@@ -22,5 +22,6 @@ router.get('/getCustomers', customer_controller.getCustomers);
 router.get('/getCustomer', customer_controller.getCustomer);
 router.put('/updateCustomer', customer_controller.updateCustomer);
 router.delete('/deleteCustomer', customer_controller.deleteCustomer);
+router.post('/findCustomerWithFilter', customer_controller.findCustomerWithFilter);
 
 module.exports = router;

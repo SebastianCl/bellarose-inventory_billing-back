@@ -132,11 +132,40 @@ const deleteCustomer = async (req, res) => {
     }
 };
 
+/**
+ * @function findCustomerWithFilter
+ * @description Buscas clientes por filtro
+ */
+const findCustomerWithFilter = async (req, res) => {
+    try {
+        // Validar el token
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let options = req.body;
+        let filter = { filters: [] };
+
+        if (options.name !== undefined && options.name !== "") {
+            filter.filters.push(['name', options.name])
+        }
+        if (options.identification !== undefined && options.identification !== "") {
+            filter.filters.push(['identification', options.identification])
+        }
+
+        const customerList = await commonService.listModelsWithFilter(Customer, filter);
+        res.status(200).send(customerList);
+    } catch (error) {
+        console.log(error.message);
+        return res.status(500).send({ resp: false, msg: error.message });
+    }
+}
+
 // Exportar funciones
 module.exports = {
     getCustomer,
     getCustomers,
     createCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    findCustomerWithFilter
 };

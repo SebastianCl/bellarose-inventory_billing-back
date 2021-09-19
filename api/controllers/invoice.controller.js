@@ -110,8 +110,11 @@ const createInvoiceReserve = async (body) => {
         let reserveID = body.reserve;
         let deposit = body.deposit;
         let payment = body.payment;
-        let description = body.description;
-        let active = true;
+        let description = body.description ? body.description : '';
+
+        if (!reserveID) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la reserva.' });
+        if (!deposit) return res.status(400).send({ resp: false, msg: 'Debe indicar el deposito.' });
+        if (!payment) return res.status(400).send({ resp: false, msg: 'Debe indicar el pago.' });
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
@@ -129,7 +132,7 @@ const createInvoiceReserve = async (body) => {
 
         // Validar si la reserva esta activa
         if (!dataReserve.active) {
-            res.msg.msg = 'La reserva esta inactiva';
+            res.msg.msg = 'La reserva esta inactiva.';
             return res;
         }
 
@@ -146,7 +149,7 @@ const createInvoiceReserve = async (body) => {
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, deposit, payment, description, active, type: 1
+            cost, deposit, payment, description, active: true, type: 1
         }
 
         // Crear factura
@@ -184,8 +187,27 @@ const createInvoiceSale = async (body) => {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
         let cost = body.cost;
-        let description = body.description;
-        let active = true;
+        let customerName = body.customerName;
+        let customerIdentification = body.customerIdentification;
+        let employeeName = body.employeeName;
+        let description = body.description ? body.description : '';
+
+        if (!cost) {
+            res.msg.msg = 'Debe indicar el costo.';
+            return res;
+        }
+        if (!customerName) {
+            res.msg.msg = 'Debe indicar el nombre del cliente.';
+            return res;
+        }
+        if (!customerIdentification) {
+            res.msg.msg = 'Debe indicar la identificación del cliente.';
+            return res;
+        }
+        if (!employeeName) {
+            res.msg.msg = 'Debe indicar el nombre del empleado.';
+            return res;
+        }
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
@@ -195,14 +217,9 @@ const createInvoiceSale = async (body) => {
 
         let invoiceNumber = respInvoiceNumber.msg;
 
-
-        let customerName = body.customerName;
-        let customerIdentification = body.customerIdentification;
-        let employeeName = body.employeeName;
-
         let data = {
-            reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, description, active, type: 2
+            customerName, customerIdentification, employeeName, invoiceNumber,
+            cost, description, active: true, type: 2
         }
 
         // Crear factura
@@ -233,8 +250,15 @@ const createInvoiceDemage = async (body) => {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
         let cost = body.cost;
-        let description = body.description;
-        let active = true;
+        let customerName = body.customerName;
+        let customerIdentification = body.customerIdentification;
+        let employeeName = body.employeeName;
+        let description = body.description ? body.description : '';
+
+        if (!cost) return res.status(400).send({ resp: false, msg: 'Debe indicar el costo.' });
+        if (!customerName) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del cliente.' });
+        if (!customerIdentification) return res.status(400).send({ resp: false, msg: 'Debe indicar la identificación del cliente.' });
+        if (!employeeName) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del empleado.' });
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
@@ -244,13 +268,10 @@ const createInvoiceDemage = async (body) => {
 
         let invoiceNumber = respInvoiceNumber.msg;
 
-        let customerName = body.customerName;
-        let customerIdentification = body.customerIdentification;
-        let employeeName = body.employeeName;
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, description, active, type: 3
+            cost, description, active: true, type: 3
         }
 
         // Crear factura
@@ -282,17 +303,20 @@ const createInvoice = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let body = req.body;
-        let type = body.type;
+        let type = req.headers['type'];
         let respInvoice;
 
         switch (type) {
-            case 1:
+            case '1':
                 respInvoice = await createInvoiceReserve(body);
                 break;
-            case 2:
+            case '2':
                 respInvoice = await createInvoiceSale(body);
                 break;
-            case 3:
+            case '3':
+                respInvoice = await createInvoiceDemage(body);
+                break;
+            case '4':
                 respInvoice = await createInvoiceDemage(body);
                 break;
             default:

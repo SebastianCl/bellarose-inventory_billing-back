@@ -21,19 +21,22 @@ const { Schema } = gstore;
 */
 const invoiceSchema = new Schema({
     reserve: { type: Schema.Types.Key, read: true, ref: 'Reserve', required: false },
+    reserveNumber: { type: Number, required: false },
+
     customerName: { type: String, required: true },
     customerIdentification: { type: String, required: true },
     employeeName: { type: String, required: true },
-    reserveNumber: { type: Number, required: false },
     invoiceNumber: { type: Number, required: true },
     cost: { type: Number, read: true, required: true },
+
     deposit: { type: Number, read: true, required: false },
     payment: { type: Number, read: true, required: false },
-    description: { type: String, read: true, required: true },
+    description: { type: String, read: true, required: false },
+
     date: { type: Date, required: false, default: gstore.defaultValues.NOW },
     active: { type: Boolean, read: true, default: true }, // false: al pagar el total de la factura
     disable: { type: Boolean, read: true, default: false }, // true: si se solicita deshabilitar
-    type: { type: String, required: true } // Reserva:1, Venta:2, Daños:3
+    type: { type: String, required: true } // Reserva:1, Venta:2, Daños:3, Abono: 4
 });
 
 // Exportar el esquema de base de datos como 'Invoice'
