@@ -263,7 +263,8 @@ const createReserve = async (req, res) => {
             startDate, endDate,
             reserveNumber,
             articles: allId_AR,
-            cost
+            cost,
+            status: 'activa'
         };
         // Crear reserva
         let createdReserve = await commonService.createModel(Reserve, newReserve);

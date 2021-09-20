@@ -34,7 +34,8 @@ const reserveSchema = new Schema({
     reserveNumber: { type: Number, required: true },
     invoiceNumber: { type: Number, required: false, default: 0 },
     active: { type: Boolean, required: false, default: true },
-    cost: { type: Number, required: true }
+    cost: { type: Number, required: true },
+    status: { type: String, required: true }
 });
 
 reserveSchema.queries('list');

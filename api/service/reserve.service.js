@@ -101,10 +101,47 @@ const finishReserve = async (reserveNumber, res) => {
         }
 
         // Deshabilitar reserva
-        let newData = { active: false };
+        let newData = { active: false, status: 'cerrada' };
         let response = await commonService.updateModel(Reserve, newData, id);
         if (!response.resp) return { resp: false, msg: `La reserva ${reserveNumber} no se actualizo.` };
         return { resp: true, msg: 'Reserva finalizada.' };
+    } catch (error) {
+        console.log(error.message);
+        return { resp: false, msg: error.message };
+    }
+};
+
+const cancelReserve = async (reserveNumber, res) => {
+    try {
+        // Validar si envio el número de reserva
+        if (!reserveNumber) return { resp: false, msg: 'Debe indicar el número de reserva.' };
+
+        // Validar si existe la reserva
+        let filter = { filters: ['reserveNumber', reserveNumber] };
+        let respReserve = await commonService.listModelsWithFilter(Reserve, filter);
+        if (!respReserve.resp) return { resp: false, msg: 'La reserva no existe.' };
+
+        let dataReserve = respReserve.msg[0];
+        let id = dataReserve.id;
+        let activeReserve = dataReserve.active;
+        let articles = dataReserve.articles;
+
+        // Validar si esta activa la reserva
+        if (!activeReserve) return { resp: false, msg: 'La reserva no esta activa.' };
+
+        // Regresar artículos al inventario y desactivar artículos reservados
+        for (let index = 0; index < articles.length; index++) {
+            const id_AR = articles[index];
+            // Devolver artículos
+            let updatesArticle = await returnArticles(id_AR, false);
+            if (!updatesArticle.resp) return res.status(400).send(updatesArticle);
+        }
+
+        // Deshabilitar reserva
+        let newData = { active: false, status: 'cancelada' };
+        let response = await commonService.updateModel(Reserve, newData, id);
+        if (!response.resp) return { resp: false, msg: `La reserva ${reserveNumber} no se actualizo.` };
+        return { resp: true, msg: 'Reserva cancelada.' };
     } catch (error) {
         console.log(error.message);
         return { resp: false, msg: error.message };
@@ -149,5 +186,6 @@ module.exports = {
     getLastNumberReserve,
     finishReserve,
     returnArticles,
-    findReserveByDate
+    findReserveByDate,
+    cancelReserve
 }

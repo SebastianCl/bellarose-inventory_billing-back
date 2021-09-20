@@ -113,10 +113,22 @@ const createInvoiceReserve = async (body) => {
         let payment = body.payment;
         let description = body.description ? body.description : '';
 
-        if (!reserveID) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la reserva.' });
-        if (!deposit) return res.status(400).send({ resp: false, msg: 'Debe indicar el deposito.' });
-        if (depositState === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar si canceló el deposito.' });
-        if (!payment) return res.status(400).send({ resp: false, msg: 'Debe indicar el pago.' });
+        if (!reserveID) {
+            res.msg.msg = 'Debe indicar el número de la reserva.';
+            return res;
+        }
+        if (!deposit) {
+            res.msg.msg = 'Debe indicar el deposito.';
+            return res;
+        }
+        if (depositState === undefined) {
+            res.msg.msg = 'Debe indicar si canceló el deposito.';
+            return res;
+        }
+        if (!payment) {
+            res.msg.msg = 'Debe indicar el pago.';
+            return res;
+        }
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
@@ -151,7 +163,7 @@ const createInvoiceReserve = async (body) => {
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, deposit, depositState, payment, description, active: true, type: 1
+            cost, deposit, depositState, payment, description, active: true, type: '1'
         }
 
         // Crear factura
@@ -221,7 +233,7 @@ const createInvoiceSale = async (body) => {
 
         let data = {
             customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, description, active: true, type: 2
+            cost, description, active: true, type: '2'
         }
 
         // Crear factura
@@ -257,10 +269,22 @@ const createInvoiceDemage = async (body) => {
         let employeeName = body.employeeName;
         let description = body.description ? body.description : '';
 
-        if (!cost) return res.status(400).send({ resp: false, msg: 'Debe indicar el costo.' });
-        if (!customerName) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del cliente.' });
-        if (!customerIdentification) return res.status(400).send({ resp: false, msg: 'Debe indicar la identificación del cliente.' });
-        if (!employeeName) return res.status(400).send({ resp: false, msg: 'Debe indicar el nombre del empleado.' });
+        if (!cost) {
+            res.msg.msg = 'Debe indicar el costo.';
+            return res;
+        }
+        if (!customerName) {
+            res.msg.msg = 'Debe indicar el nombre del cliente.';
+            return res;
+        }
+        if (!customerIdentification) {
+            res.msg.msg = 'Debe indicar la identificación del cliente.';
+            return res;
+        }
+        if (!employeeName) {
+            res.msg.msg = 'Debe indicar el nombre del empleado.';
+            return res;
+        }
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
@@ -272,8 +296,8 @@ const createInvoiceDemage = async (body) => {
 
 
         let data = {
-            reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, description, active: true, type: 3
+            customerName, customerIdentification, employeeName, invoiceNumber,
+            cost, description, active: true, type: '3'
         }
 
         // Crear factura
@@ -316,9 +340,6 @@ const createInvoice = async (req, res) => {
                 respInvoice = await createInvoiceSale(body);
                 break;
             case '3':
-                respInvoice = await createInvoiceDemage(body);
-                break;
-            case '4':
                 respInvoice = await createInvoiceDemage(body);
                 break;
             default:
