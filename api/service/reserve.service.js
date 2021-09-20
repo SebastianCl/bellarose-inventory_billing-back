@@ -128,14 +128,16 @@ const findReserveByDate = async (dates) => {
     let startDate = dates.startDate;
     let endDate = dates.endDate;
 
-    const response = await reserveModel.query()
+    /*const response = await reserveModel.query()
         .filter('reserveDay', '>=', startDate)
         .filter('reserveDay', '<=', endDate)
-        .run();
-    if (response.entities.length > 0) {
+        .run();*/
+
+    const response = await commonService.getModels(Reserve);
+    if (response.msg.length > 0) {
         res.code = 200;
         res.resp = true;
-        res.msg = response.entities;
+        res.msg = response.msg;
     } else {
         res.code = 200;
         res.resp = true;
