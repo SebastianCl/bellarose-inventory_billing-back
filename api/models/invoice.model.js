@@ -30,6 +30,7 @@ const invoiceSchema = new Schema({
     cost: { type: Number, read: true, required: true },
 
     deposit: { type: Number, read: true, required: false },
+    depositState: { type: Boolean, read: true, required: false },
     payment: { type: Number, read: true, required: false },
     description: { type: String, read: true, required: false },
 

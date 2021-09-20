@@ -301,6 +301,30 @@ const finishReserve = async (req, res) => {
 };
 
 /**
+ * @function cancelReserve
+ * @description Permite cancelar una reserva especifica por ID
+ */
+const cancelReserve = async (req, res) => {
+    try {
+        // Validar el token 
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let reserveNumber = req.body.reserveNumber;
+        // Validar si envio número de reserva
+        if (!reserveNumber) return res.status(400).send({ resp: false, msg: 'Debe enviar el número de la reserva.' });
+
+        let respFinish = await reserveService.cancelReserve(reserveNumber);
+
+        if (!respFinish.resp) return res.status(400).send(respFinish);
+        return res.status(200).send(respFinish);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+};
+
+/**
  * @function editReserve
  * @description Permite actualizar una reserva especifica por ID
  */
@@ -514,6 +538,34 @@ const findReserveWithFilter = async (req, res) => {
     }
 }
 
+
+/**
+ * @function findReserveWithFilter
+ * @description Busca los registro de reserves por filtro
+ */
+const findReserveByDate = async (req, res) => {
+    try {
+        // Validar el token
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+
+        let startDate = req.body.startDate;
+        let endDate = req.body.endDate;
+
+        // Asignar formato de fecha
+        //startDate = new Date(startDate);
+        //endDate = new Date(endDate);
+
+        const reserveList = await reserveService.findReserveByDate(startDate, endDate);
+        res.status(200).send(reserveList);
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+}
+
+
 //Exportar funciones
 module.exports = {
     getReserves,
@@ -523,5 +575,7 @@ module.exports = {
     deleteReserve,
     findReserveWithFilter,
     finishReserve,
-    assingInvoice
+    cancelReserve,
+    assingInvoice,
+    findReserveByDate
 };

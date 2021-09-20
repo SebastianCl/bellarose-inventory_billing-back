@@ -109,11 +109,13 @@ const createInvoiceReserve = async (body) => {
 
         let reserveID = body.reserve;
         let deposit = body.deposit;
+        let depositState = body.depositState;
         let payment = body.payment;
         let description = body.description ? body.description : '';
 
         if (!reserveID) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la reserva.' });
         if (!deposit) return res.status(400).send({ resp: false, msg: 'Debe indicar el deposito.' });
+        if (depositState === undefined) return res.status(400).send({ resp: false, msg: 'Debe indicar si canceló el deposito.' });
         if (!payment) return res.status(400).send({ resp: false, msg: 'Debe indicar el pago.' });
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
@@ -149,7 +151,7 @@ const createInvoiceReserve = async (body) => {
 
         let data = {
             reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, deposit, payment, description, active: true, type: 1
+            cost, deposit, depositState, payment, description, active: true, type: 1
         }
 
         // Crear factura
