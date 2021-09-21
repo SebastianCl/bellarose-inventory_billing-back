@@ -568,6 +568,53 @@ const findReserveByDate = async (req, res) => {
     }
 }
 
+/**
+ * @function getDataArticlesReserved
+ * @description Retorna el detalle de los articulos 
+ */
+const getDataArticlesReserved = async (req, res) => {
+    try {
+        // Validar el token 
+        let resToken = auth.verifyToken(req);
+        if (!resToken.resp) return res.status(401).send(resToken);
+
+        let reserveNumber = req.body.reserveNumber;
+
+        if (!reserveNumber) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la reserva.' });
+
+        let filter = { filters: [] };
+        filter.filters.push(['reserveNumber', reserveNumber])
+        let respReserve = await commonService.listModelsWithFilter(Reserve, filter);
+        if (!respReserve.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva número ${reserveNumber}.` });
+
+        let articlesReserved = respReserve.msg[0].articles;
+
+        let allAR = [];
+        let subTotal = 0;
+        let cost = 0;
+
+        for (let index = 0; index < articlesReserved.length; index++) {
+            const idAR = articlesReserved[index];
+
+            let respAR = await commonService.getModel(ArticleReserved, idAR);
+            let dataAR = respAR.msg;
+
+            let price = dataAR.price;
+            let discount = dataAR.discount;
+            allAR.push({ ref: dataAR.reference, price, discount });
+            subTotal = subTotal + price;
+            cost = cost + (price - (price * (discount / 100)));
+        }
+
+        let details = { articles: allAR, subTotal, cost }
+
+        return res.status(200).send({ resp: true, msg: details });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ resp: false, msg: error.message });
+    }
+};
+
 
 //Exportar funciones
 module.exports = {
@@ -580,5 +627,6 @@ module.exports = {
     finishReserve,
     cancelReserve,
     assingInvoice,
-    findReserveByDate
+    findReserveByDate,
+    getDataArticlesReserved
 };

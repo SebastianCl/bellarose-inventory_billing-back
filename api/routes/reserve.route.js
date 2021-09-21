@@ -27,5 +27,6 @@ router.post('/finishReserve', reserve_controller.finishReserve);
 router.post('/assingInvoice', reserve_controller.assingInvoice);
 router.post('/findReserveByDate', reserve_controller.findReserveByDate);
 router.post('/cancelReserve', reserve_controller.cancelReserve);
+router.post('/getDataArticlesReserved', reserve_controller.getDataArticlesReserved);
 
 module.exports = router;

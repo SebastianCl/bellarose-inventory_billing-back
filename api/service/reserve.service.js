@@ -165,7 +165,6 @@ const findReserveByDate = async (startDate, endDate) => {
         .filter('reserveDay', '<', endDate)
         .run();
 
-    // const response = await commonService.getModels(Reserve);
     if (response.entities.length > 0) {
         res.resp = true;
         res.msg = response.entities;
@@ -175,6 +174,7 @@ const findReserveByDate = async (startDate, endDate) => {
     }
     return res;
 }
+
 module.exports = {
     getLastNumberReserve,
     finishReserve,
