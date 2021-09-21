@@ -11,7 +11,6 @@
 
 // Modelo
 const Reserve = require('../models/reserve.model');
-const Invoice = require('../models/invoice.model');
 const Article = require('../models/article.model');
 const ArticleReserved = require('../models/articleReserved.model');
 
@@ -19,7 +18,6 @@ const ArticleReserved = require('../models/articleReserved.model');
 const commonService = require('../service/common.service');
 
 const moraCost = require('../config/config').moraCost;
-const reserveModel = require('../models/reserve.model');
 
 // Obtener el último número registrado de una reserva
 const getLastNumberReserve = async () => {
@@ -159,24 +157,19 @@ const calculateMora = async (endDate) => {
     return moraDays < 0 ? 0 : moraDays * moraCost;
 }
 
-const findReserveByDate = async (dates) => {
-    let res = { resp: false, msg: {}, code: 400 };
+const findReserveByDate = async (startDate, endDate) => {
+    let res = { resp: false, msg: {} };
 
-    let startDate = dates.startDate;
-    let endDate = dates.endDate;
+    const response = await Reserve.query()
+        .filter('reserveDay', '>', startDate)
+        .filter('reserveDay', '<', endDate)
+        .run();
 
-    /*const response = await reserveModel.query()
-        .filter('reserveDay', '>=', startDate)
-        .filter('reserveDay', '<=', endDate)
-        .run();*/
-
-    const response = await commonService.getModels(Reserve);
-    if (response.msg.length > 0) {
-        res.code = 200;
+    // const response = await commonService.getModels(Reserve);
+    if (response.entities.length > 0) {
         res.resp = true;
-        res.msg = response.msg;
+        res.msg = response.entities;
     } else {
-        res.code = 200;
         res.resp = true;
         res.msg = 'Sin resultados.';
     }

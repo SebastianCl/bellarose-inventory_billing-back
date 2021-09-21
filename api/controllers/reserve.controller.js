@@ -555,10 +555,12 @@ const findReserveByDate = async (req, res) => {
         let endDate = req.body.endDate;
 
         // Asignar formato de fecha
-        //startDate = new Date(startDate);
-        //endDate = new Date(endDate);
+        startDate = new Date(startDate);
+        endDate = new Date(endDate);
 
         const reserveList = await reserveService.findReserveByDate(startDate, endDate);
+        if (!reserveList.resp) res.status(400).send(reserveList);
+
         res.status(200).send(reserveList);
     } catch (error) {
         console.log(error.message);
