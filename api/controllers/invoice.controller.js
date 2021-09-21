@@ -20,7 +20,7 @@ const ArticleReserved = require('../models/articleReserved.model');
 // Servicio
 const commonService = require('../service/common.service');
 const invoiceService = require('../service/invoice.service');
-const reserveService = require('../service/reserve.service');
+const articleService = require('../service/article.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 /**************************
@@ -200,11 +200,17 @@ const createInvoiceSale = async (body) => {
     try {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
+        let articles = body.articles;
         let cost = body.cost;
         let customerName = body.customerName;
         let customerIdentification = body.customerIdentification;
         let employeeName = body.employeeName;
         let description = body.description ? body.description : '';
+
+        if (!articles || articles.length === 0) {
+            res.msg.msg = 'Debe indicar los articulos';
+            return res;
+        }
 
         if (!cost) {
             res.msg.msg = 'Debe indicar el costo.';
@@ -222,6 +228,13 @@ const createInvoiceSale = async (body) => {
             res.msg.msg = 'Debe indicar el nombre del empleado.';
             return res;
         }
+
+        let respStatus = await articleService.articleStatus(articles);
+        if (!respStatus.resp) {
+            res.msg.msg = respStatus.msg;
+            return res;
+        }
+        let dataArticles = respStatus.msg;
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
@@ -243,7 +256,8 @@ const createInvoiceSale = async (body) => {
             return res;
         }
 
-        //TODO: Retirar item del inventario
+        let respRemove = await articleService.removeArticles(dataArticles);
+        if (!respRemove.resp) console.log(respRemove.msg);
 
         res.code = 200;
         res.msg = respInvoice;

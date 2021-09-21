@@ -86,7 +86,7 @@ const getReserve = async (req, res) => {
 };
 
 // Validar si el artículo existe o esta disponible
-async function articleStatus(articles, startDate, endDate) {
+async function articleStatusDate(articles, startDate, endDate) {
     let typeNumError = 0;
     let resp = { resp: false, type: typeNumError, msg: '' };
 
@@ -235,7 +235,7 @@ const createReserve = async (req, res) => {
 
         let allId_AR = [];
 
-        let respAS = await articleStatus(articles, startDate, endDate);
+        let respAS = await articleStatusDate(articles, startDate, endDate);
         if (!respAS.resp) return res.status(400).send(respAS);
 
         let allDataArticles = respAS.msg;
@@ -383,7 +383,7 @@ const editReserve = async (req, res) => {
             }
 
             let startDate = dataReserve.startDate;
-            let respAS = await articleStatus(newArticles, startDate, endDate);
+            let respAS = await articleStatusDate(newArticles, startDate, endDate);
             if (!respAS.resp) return res.status(400).send(respAS);
 
             let allDataArticles = respAS.msg;

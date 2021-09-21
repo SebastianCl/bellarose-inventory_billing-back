@@ -299,10 +299,6 @@ const validateAvailability = async (req, res) => {
 
 
 /**
-* @function suggestionsList
-* @description Genera un arreglo con palabras sugeridas para busqueda de imágenes
-*/
-/**
  * @function suggestionsList
  * @description Generar lista de referencias de articulos
  */

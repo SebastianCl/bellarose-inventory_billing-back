@@ -64,6 +64,8 @@ const articleStatus = async (articles) => {
 
     for (let reference of articles) {
 
+        reference = reference.price ? reference.ref : reference;
+
         let filter = { filters: ['reference', reference] };
         let exist = await commonService.listModelsWithFilter(Article, filter);
 
@@ -93,7 +95,7 @@ const articleStatus = async (articles) => {
             break;
         }
 
-        const dataArticleReserved = { id: articleData.id, reference };
+        const dataArticleReserved = { id: articleData.id, reference, quantity: articleData.quantity };
         allDataArticles.push(dataArticleReserved);
     }
     if (allBad.length > 0) {
@@ -107,7 +109,41 @@ const articleStatus = async (articles) => {
     return resp;
 }
 
+/**
+ * @function removeArticles
+ * @param {Array} articles Articulos a registrar
+ * @description Permite registrar varios articulos
+ */
+const removeArticles = async (articles) => {
+    let res = { resp: false, msg: {} };
+
+    let allBad = [];
+
+    for (let index = 0; index < articles.length; index++) {
+        const articleData = articles[index];
+
+        const articleID = articleData.id;
+        const quantity = articleData.quantity - 1;
+        const articleNewData = { quantity };
+
+        // Actualizar registros
+        const updatedArticle = await commonService.updateModel(Article, articleNewData, articleID);
+        if (!updatedArticle.resp) allBad.push({ reference: articleData.reference, error: updatedArticle.msg });
+    }
+
+    if (allBad.length === 0) {
+        res.resp = true;
+        res.msg = 'Articulos removidos.'
+    }
+    else {
+        res.msg = allBad;
+    }
+
+    return res;
+}
+
 module.exports = {
     saveArticle,
-    articleStatus
+    articleStatus,
+    removeArticles
 }
