@@ -25,10 +25,11 @@ const invoiceSchema = new Schema({
 
     customerName: { type: String, required: true },
     customerDirection: { type: String, required: true },
-    customerEmail: { type: String, required: true },
+    customerEmail: { type: String, required: false },
     customerIdentification: { type: String, required: true },
     employeeName: { type: String, required: true },
     invoiceNumber: { type: Number, required: true },
+    articles: [{ type: Array, read: true, required: false }],
 
     cost: { type: Number, read: true, required: true },
     deposit: { type: Number, read: true, required: false },

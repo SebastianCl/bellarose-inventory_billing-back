@@ -67,7 +67,7 @@ const getInvoice = async (req, res) => {
         let dataInvoice = response.msg;
 
         // Agregar información de articulos reservados
-        if (dataInvoice.type == 1 || dataInvoice.type == 2) {
+        if (dataInvoice.type == 1) {
             let AR_IDs = dataInvoice.reserve.articles;
             let articlesReserved = [];
 
@@ -257,7 +257,7 @@ const createInvoiceSale = async (body) => {
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
-            res.msg.msg = 'No se pudo obtener el nuevo número de factura';
+            res.msg.msg = 'No se pudo obtener el nuevo número de factura.';
             return res;
         }
 
@@ -271,7 +271,7 @@ const createInvoiceSale = async (body) => {
 
         let data = {
             customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
-            cost, payment, description, active: true, type: '2'
+            cost, payment, description, active: true, type: '2', articles
         }
 
         // Crear factura
