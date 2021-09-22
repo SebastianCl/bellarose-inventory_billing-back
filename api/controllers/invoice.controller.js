@@ -208,8 +208,8 @@ const createInvoiceSale = async (body) => {
     try {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
-        let customerID = body.customerName;
-        let employeeID = body.customerIdentification;
+        let customerID = body.customerID;
+        let employeeID = body.employeeID;
         let articles = body.articles;
         let cost = body.cost;
         let description = body.description ? body.description : '';
@@ -303,8 +303,8 @@ const createInvoiceDemage = async (body) => {
     try {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
-        let customerID = body.customerName;
-        let employeeID = body.customerIdentification;
+        let customerID = body.customerID;
+        let employeeID = body.employeeID;
         let cost = body.cost;
         let description = body.description ? body.description : '';
 
