@@ -57,26 +57,30 @@ const getInvoice = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
+        if (!id) return res.status(400).send({ resp: false, msg: 'Debe indicar el id.' });
+
         let response = await commonService.getModel(Invoice, id);
+        if (!response.resp) return res.status(400).send({ resp: false, msg: `No existe factura con id: ${id}.` });
 
         let dataInvoice = response.msg;
 
-        let articlesID = dataInvoice.reserve.articles;
-        let articles = [];
+        // Agregar información de articulos reservados
+        if (dataInvoice.type == 1 || dataInvoice.type == 2) {
+            let AR_IDs = dataInvoice.reserve.articles;
+            let articlesReserved = [];
 
-        for (let index = 0; index < articlesID.length; index++) {
-            const articleReservedID = articlesID[index];
-            const respAR = await commonService.getModel(ArticleReserved, articleReservedID);
-            if (!respAR.resp) return res.status(400).send(respAR);
-            const dataAR = respAR.msg;
+            for (let index = 0; index < AR_IDs.length; index++) {
+                const articleReservedID = AR_IDs[index];
+                const respAR = await commonService.getModel(ArticleReserved, articleReservedID);
+                if (!respAR.resp) return res.status(400).send(respAR);
 
-            articles.push({ reference: dataAR.reference, price: dataAR.price, discount: dataAR.discount });
+                const dataAR = respAR.msg;
+                articlesReserved.push({ reference: dataAR.reference, price: dataAR.price, discount: dataAR.discount });
+            }
+            dataInvoice.articles = articlesReserved; // Agregar información de todos los articulos reservados a la info de la factura
         }
 
-        dataInvoice.articles = articles;
-
-        if (!response.resp) return res.status(400).send(response);
-        return res.status(200).send(response);
+        return res.status(200).send({ resp: true, msg: dataInvoice });
     } catch (error) {
         console.log(error.message);
         return res.status(500).send({ resp: false, msg: error.message });
