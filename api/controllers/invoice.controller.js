@@ -211,11 +211,11 @@ const createInvoiceSale = async (body) => {
             res.msg.msg = 'Debe indicar los articulos';
             return res;
         }
-
         if (!cost) {
             res.msg.msg = 'Debe indicar el costo.';
             return res;
         }
+        const payment = cost;
         if (!customerName) {
             res.msg.msg = 'Debe indicar el nombre del cliente.';
             return res;
@@ -246,7 +246,7 @@ const createInvoiceSale = async (body) => {
 
         let data = {
             customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, description, active: true, type: '2'
+            cost, payment, description, active: true, type: '2'
         }
 
         // Crear factura
@@ -256,6 +256,7 @@ const createInvoiceSale = async (body) => {
             return res;
         }
 
+        // Remover articulos vendidos del inventario
         let respRemove = await articleService.removeArticles(dataArticles);
         if (!respRemove.resp) console.log(respRemove.msg);
 
@@ -287,6 +288,7 @@ const createInvoiceDemage = async (body) => {
             res.msg.msg = 'Debe indicar el costo.';
             return res;
         }
+        const payment = cost;
         if (!customerName) {
             res.msg.msg = 'Debe indicar el nombre del cliente.';
             return res;
@@ -311,7 +313,7 @@ const createInvoiceDemage = async (body) => {
 
         let data = {
             customerName, customerIdentification, employeeName, invoiceNumber,
-            cost, description, active: true, type: '3'
+            cost, payment, description, active: true, type: '3'
         }
 
         // Crear factura
