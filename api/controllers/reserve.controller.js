@@ -418,45 +418,6 @@ const editReserve = async (req, res) => {
 };
 
 /**
- * @function assingInvoice
- * @description Permite asignar una factura a una reserva
- */
-const assingInvoice = async (req, res) => {
-    try {
-        // Validar el token 
-        let resToken = auth.verifyToken(req);
-        if (!resToken.resp) return res.status(401).send(resToken);
-
-
-        let reserveNumber = req.body.reserveNumber;
-        let invoiceNumber = req.body.invoiceNumber;
-        // Validatos si envio datos
-        if (!reserveNumber) return res.status(400).send({ resp: false, msg: 'Debe enviar el número de la reserva.' });
-        if (!invoiceNumber) return res.status(400).send({ resp: false, msg: 'Debe enviar el número de la factura.' });
-
-        // Validar si existe la reserva
-        let filter = { filters: ['reserveNumber', reserveNumber] };
-        let respReserve = await commonService.listModelsWithFilter(Reserve, filter);
-        if (!respReserve.resp) return res.status(400).send({ resp: false, msg: `No existe reserva número ${reserveNumber}.` });
-
-        // Validar si existe la factura
-        filter = { filters: ['invoiceNumber', invoiceNumber] };
-        let respInvoice = await commonService.listModelsWithFilter(Invoice, filter);
-        if (!respInvoice.resp) return res.status(400).send({ resp: false, msg: `No existe factura número ${invoiceNumber}.` });
-
-        let reserveID = respReserve.msg.id;
-        let respUpdate = await commonService.updateModel(Reserve, newData, reserveID);
-        if (!respUpdate.resp) return res.status(400).send({ resp: false, msg: `Fallo al actualizar la reserva número ${reserveNumber}.` });
-
-        return res.status(200).send({ resp: false, msg: `Factura número ${invoiceNumber} asignada a la reserva ${reserveNumber} ` });
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
-    }
-}
-
-/**
  * @function deleteReserve
  * @description Permite eliminar un reserve especifico por ID
  */
@@ -626,7 +587,6 @@ module.exports = {
     findReserveWithFilter,
     finishReserve,
     cancelReserve,
-    assingInvoice,
     findReserveByDate,
     getDataArticlesReserved
 };

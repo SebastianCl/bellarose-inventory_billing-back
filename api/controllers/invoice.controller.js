@@ -17,6 +17,8 @@
 const Invoice = require('../models/invoice.model');
 const Reserve = require('../models/reserve.model');
 const ArticleReserved = require('../models/articleReserved.model');
+const Employee = require('../models/employee.model');
+const Customer = require('../models/customer.model');
 // Servicio
 const commonService = require('../service/common.service');
 const invoiceService = require('../service/invoice.service');
@@ -162,11 +164,13 @@ const createInvoiceReserve = async (body) => {
 
         let customerName = dataReserve.customerName;
         let customerIdentification = dataReserve.customerIdentification;
+        let customerDirection = dataReserve.customer.direction;
+        let customerEmail = dataReserve.customer.email;
         let employeeName = dataReserve.employeeName;
         let cost = dataReserve.cost;
 
         let data = {
-            reserve: keyReserve, customerName, customerIdentification, employeeName, invoiceNumber,
+            reserve: keyReserve, customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
             cost, deposit, depositState, payment, description, active: true, type: '1'
         }
 
@@ -204,32 +208,43 @@ const createInvoiceSale = async (body) => {
     try {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
+        let customerID = body.customerName;
+        let employeeID = body.customerIdentification;
         let articles = body.articles;
         let cost = body.cost;
-        let customerName = body.customerName;
-        let customerIdentification = body.customerIdentification;
-        let employeeName = body.employeeName;
         let description = body.description ? body.description : '';
 
+        // Validar si envia ID del cliente
+        if (!customerID) {
+            res.msg.msg = 'Debe indicar el id del cliente.';
+            return res;
+        }
+        // Validar si envia ID del empleado
+        if (!employeeID) {
+            res.msg.msg = 'Debe indicar el id del empleado.';
+            return res;
+        }
+        // Validar si envia los articulos
         if (!articles || articles.length === 0) {
             res.msg.msg = 'Debe indicar los articulos';
             return res;
         }
+        // Validar si envia el costo
         if (!cost) {
             res.msg.msg = 'Debe indicar el costo.';
             return res;
         }
         const payment = cost;
-        if (!customerName) {
-            res.msg.msg = 'Debe indicar el nombre del cliente.';
+
+        let respCustomer = await commonService.getModel(Customer, customerID);
+        if (!respCustomer.resp) {
+            res.msg.msg = 'No existe el cliente.'
             return res;
         }
-        if (!customerIdentification) {
-            res.msg.msg = 'Debe indicar la identificación del cliente.';
-            return res;
-        }
-        if (!employeeName) {
-            res.msg.msg = 'Debe indicar el nombre del empleado.';
+
+        let respEmployee = await commonService.getModel(Employee, employeeID);
+        if (!respEmployee.resp) {
+            res.msg.msg = 'No existe el empleado.'
             return res;
         }
 
@@ -246,10 +261,16 @@ const createInvoiceSale = async (body) => {
             return res;
         }
 
+        // Datos de la factura
         let invoiceNumber = respInvoiceNumber.msg;
+        let customerName = respCustomer.msg.name;
+        let customerIdentification = respCustomer.msg.identification;
+        let customerDirection = respCustomer.msg.direction;
+        let customerEmail = respCustomer.msg.email;
+        let employeeName = respEmployee.msg.name;
 
         let data = {
-            customerName, customerIdentification, employeeName, invoiceNumber,
+            customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
             cost, payment, description, active: true, type: '2'
         }
 
@@ -282,27 +303,37 @@ const createInvoiceDemage = async (body) => {
     try {
         let res = { code: 400, msg: { resp: false, msg: '' } };
 
+        let customerID = body.customerName;
+        let employeeID = body.customerIdentification;
         let cost = body.cost;
-        let customerName = body.customerName;
-        let customerIdentification = body.customerIdentification;
-        let employeeName = body.employeeName;
         let description = body.description ? body.description : '';
 
+        // Validar si envia ID del cliente
+        if (!customerID) {
+            res.msg.msg = 'Debe indicar el id del cliente.';
+            return res;
+        }
+        // Validar si envia ID del empleado
+        if (!employeeID) {
+            res.msg.msg = 'Debe indicar el id del empleado.';
+            return res;
+        }
+        // Validar si envia el costo
         if (!cost) {
             res.msg.msg = 'Debe indicar el costo.';
             return res;
         }
         const payment = cost;
-        if (!customerName) {
-            res.msg.msg = 'Debe indicar el nombre del cliente.';
+
+        let respCustomer = await commonService.getModel(Customer, customerID);
+        if (!respCustomer.resp) {
+            res.msg.msg = 'No existe el cliente.'
             return res;
         }
-        if (!customerIdentification) {
-            res.msg.msg = 'Debe indicar la identificación del cliente.';
-            return res;
-        }
-        if (!employeeName) {
-            res.msg.msg = 'Debe indicar el nombre del empleado.';
+
+        let respEmployee = await commonService.getModel(Employee, employeeID);
+        if (!respEmployee.resp) {
+            res.msg.msg = 'No existe el empleado.'
             return res;
         }
 
@@ -312,11 +343,16 @@ const createInvoiceDemage = async (body) => {
             return res;
         }
 
+        // Datos de la factura
         let invoiceNumber = respInvoiceNumber.msg;
-
+        let customerName = respCustomer.msg.name;
+        let customerIdentification = respCustomer.msg.identification;
+        let customerDirection = respCustomer.msg.direction;
+        let customerEmail = respCustomer.msg.email;
+        let employeeName = respEmployee.msg.name;
 
         let data = {
-            customerName, customerIdentification, employeeName, invoiceNumber,
+            customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
             cost, payment, description, active: true, type: '3'
         }
 

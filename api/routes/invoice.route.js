@@ -24,6 +24,4 @@ router.put('/payInvoice', invoice_controller.payInvoice);
 router.post('/disableInvoice', invoice_controller.disableInvoice);
 router.post('/findInvoiceWithFilter', invoice_controller.findInvoiceWithFilter);
 
-router.post('/test', invoice_controller.test);
-
 module.exports = router;

@@ -24,11 +24,13 @@ const invoiceSchema = new Schema({
     reserveNumber: { type: Number, required: false },
 
     customerName: { type: String, required: true },
+    customerDirection: { type: String, required: true },
+    customerEmail: { type: String, required: true },
     customerIdentification: { type: String, required: true },
     employeeName: { type: String, required: true },
     invoiceNumber: { type: Number, required: true },
-    cost: { type: Number, read: true, required: true },
 
+    cost: { type: Number, read: true, required: true },
     deposit: { type: Number, read: true, required: false },
     depositState: { type: Boolean, read: true, required: false },
     payment: { type: Number, read: true, required: false },
