@@ -1,12 +1,11 @@
 /**
  * @version 1.0.0
- * @author Sebastian Cardona Loaiza <sebastian.cardona@gruponetw.com>
+ * @author Sebastian Cardona Loaiza <cardonaloaizasebastian112@gmail.com>
  * @copyright 2021 Todos los derechos reservados.
  */
 
 /**
 * @controller Servicio de articulo
-* @description Script NODEJS que permite realizar operaciones CRUD sobre el modelo Article.
 */
 
 // Modelo
@@ -64,7 +63,7 @@ const articleStatus = async (articles) => {
 
     for (let reference of articles) {
 
-        reference = reference.price ? reference.ref : reference;
+        reference = reference.price ? reference.reference : reference;
 
         let filter = { filters: ['reference', reference] };
         let exist = await commonService.listModelsWithFilter(Article, filter);

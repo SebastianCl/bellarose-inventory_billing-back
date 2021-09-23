@@ -1,6 +1,6 @@
 /**
  * @version 1.0.0
- * @author Sebastian Cardona Loaiza <sebastian.cardona@gruponetw.com>
+ * @author Sebastian Cardona Loaiza <cardonaloaizasebastian112@gmail.com>
  * @copyright 2021 Todos los derechos reservados.
  */
 
@@ -24,6 +24,7 @@ const Employee = require('../models/employee.model');
 const commonService = require('../service/common.service');
 const reserveService = require('../service/reserve.service');
 const invoiceService = require('../service/invoice.service');
+const articleReserved = require('../service/articleReserved.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 // Validaciones
@@ -95,7 +96,7 @@ async function articleStatusDate(articles, startDate, endDate) {
 
     for (let value of articles) {
         // Datos de artículo
-        const reference = value.ref;
+        const reference = value.reference;
         const price = value.price;
         const discount = value.discount;
 
@@ -264,7 +265,7 @@ const createReserve = async (req, res) => {
             reserveNumber,
             articles: allId_AR,
             cost,
-            status: 'activa'
+            status: 'ACTIVA'
         };
         // Crear reserva
         let createdReserve = await commonService.createModel(Reserve, newReserve);
@@ -530,10 +531,10 @@ const findReserveByDate = async (req, res) => {
 }
 
 /**
- * @function getDataArticlesReserved
- * @description Retorna el detalle de los articulos 
+ * @function dataArticlesReserved
+ * @description Retorna el detalle de los articulos reservados
  */
-const getDataArticlesReserved = async (req, res) => {
+const dataArticlesReserved = async (req, res) => {
     try {
         // Validar el token 
         let resToken = auth.verifyToken(req);
@@ -543,36 +544,14 @@ const getDataArticlesReserved = async (req, res) => {
 
         if (!reserveNumber) return res.status(400).send({ resp: false, msg: 'Debe indicar el número de la reserva.' });
 
-        let filter = { filters: [] };
-        filter.filters.push(['reserveNumber', reserveNumber])
-        let respReserve = await commonService.listModelsWithFilter(Reserve, filter);
-        if (!respReserve.resp) return res.status(400).send({ resp: false, msg: `No existe la reserva número ${reserveNumber}.` });
+        let responseAR = await articleReserved.dataArticlesReserved(reserveNumber);
 
-        let articlesReserved = respReserve.msg[0].articles;
+        if (!responseAR.resp) return res.status(400).send(responseAR);
 
-        let allAR = [];
-        let subTotal = 0;
-        let cost = 0;
-
-        for (let index = 0; index < articlesReserved.length; index++) {
-            const idAR = articlesReserved[index];
-
-            let respAR = await commonService.getModel(ArticleReserved, idAR);
-            let dataAR = respAR.msg;
-
-            let price = dataAR.price;
-            let discount = dataAR.discount;
-            allAR.push({ ref: dataAR.reference, price, discount });
-            subTotal = subTotal + price;
-            cost = cost + (price - (price * (discount / 100)));
-        }
-
-        let details = { articles: allAR, subTotal, cost }
-
-        return res.status(200).send({ resp: true, msg: details });
+        return res.status(200).send(responseAR);
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({ resp: false, msg: error.message });
+        return res.status(500).send({ resp: false, msg: error.message });
     }
 };
 
@@ -588,5 +567,5 @@ module.exports = {
     finishReserve,
     cancelReserve,
     findReserveByDate,
-    getDataArticlesReserved
+    dataArticlesReserved
 };

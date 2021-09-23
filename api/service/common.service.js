@@ -1,12 +1,11 @@
 /**
  * @version 1.0.0
- * @author Sebastian Cardona Loaiza <sebastian.cardona@gruponetw.com>
+ * @author Sebastian Cardona Loaiza <cardonaloaizasebastian112@gmail.com>
  * @copyright 2021 Todos los derechos reservados.
  */
 
 /**
-* @controller Servicio común
-* @description Script NODEJS que permite realizar operaciones CRUD sobre un modelo. Utilizamos 
+* @controller Servicio común Utilizamos 
 *              como servicio la base de datos no relacional Google Cloud DataStore.
 */
 

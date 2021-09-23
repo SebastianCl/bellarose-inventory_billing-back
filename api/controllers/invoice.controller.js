@@ -1,6 +1,6 @@
 /**
  * @version 1.0.0
- * @author Sebastian Cardona Loaiza <sebastian.cardona@gruponetw.com>
+ * @author Sebastian Cardona Loaiza <cardonaloaizasebastian112@gmail.com>
  * @copyright 2021 Todos los derechos reservados.
  */
 
@@ -23,6 +23,7 @@ const Customer = require('../models/customer.model');
 const commonService = require('../service/common.service');
 const invoiceService = require('../service/invoice.service');
 const articleService = require('../service/article.service');
+const articleReserved = require('../service/articleReserved.service');
 // Autenticación JWT
 const auth = require('../auth/securityJWT');
 /**************************
@@ -162,6 +163,12 @@ const createInvoiceReserve = async (body) => {
             return res;
         }
 
+        let reserveNumber = dataReserve.reserveNumber;
+        let responseAR = await articleReserved.dataArticlesReserved(reserveNumber);
+        if (!responseAR.resp) return res.status(400).send({ resp: false, msg: 'Fallo al buscar detalle de articulos reservados.' });
+        let articles = responseAR.msg;
+
+        // Datos de factura
         let customerName = dataReserve.customerName;
         let customerIdentification = dataReserve.customerIdentification;
         let customerDirection = dataReserve.customer.direction;
@@ -170,8 +177,8 @@ const createInvoiceReserve = async (body) => {
         let cost = dataReserve.cost;
 
         let data = {
-            reserve: keyReserve, customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
-            cost, deposit, depositState, payment, description, active: true, type: '1'
+            reserve: keyReserve, reserveNumber, customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
+            cost, deposit, depositState, payment, description, active: true, type: '1', articles
         }
 
         // Crear factura
@@ -205,13 +212,12 @@ const createInvoiceReserve = async (body) => {
  * @description Permite crear una factura nueva de tipo venta
  */
 const createInvoiceSale = async (body) => {
+    let res = { code: 400, msg: { resp: false, msg: '' } };
     try {
-        let res = { code: 400, msg: { resp: false, msg: '' } };
 
         let customerID = body.customerID;
         let employeeID = body.employeeID;
         let articles = body.articles;
-        let cost = body.cost;
         let description = body.description ? body.description : '';
 
         // Validar si envia ID del cliente
@@ -226,15 +232,9 @@ const createInvoiceSale = async (body) => {
         }
         // Validar si envia los articulos
         if (!articles || articles.length === 0) {
-            res.msg.msg = 'Debe indicar los articulos';
+            res.msg.msg = 'Debe indicar los articulos.';
             return res;
         }
-        // Validar si envia el costo
-        if (!cost) {
-            res.msg.msg = 'Debe indicar el costo.';
-            return res;
-        }
-        const payment = cost;
 
         let respCustomer = await commonService.getModel(Customer, customerID);
         if (!respCustomer.resp) {
@@ -253,7 +253,20 @@ const createInvoiceSale = async (body) => {
             res.msg.msg = respStatus.msg;
             return res;
         }
-        let dataArticles = respStatus.msg;
+
+        let subTotal = 0;
+        let cost = 0;
+        for (let index = 0; index < articles.length; index++) {
+            const dataArticle = articles[index];
+
+            let price = dataArticle.price;
+            let discount = dataArticle.discount;
+
+            subTotal = subTotal + price;
+            cost = cost + (price - (price * (discount / 100)));
+        }
+        const payment = cost;
+
 
         let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
         if (!respInvoiceNumber.resp) {
@@ -282,6 +295,7 @@ const createInvoiceSale = async (body) => {
         }
 
         // Remover articulos vendidos del inventario
+        let dataArticles = respStatus.msg;
         let respRemove = await articleService.removeArticles(dataArticles);
         if (!respRemove.resp) console.log(respRemove.msg);
 
@@ -337,7 +351,7 @@ const createInvoiceDemage = async (body) => {
             return res;
         }
 
-        let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
+        let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de factura
         if (!respInvoiceNumber.resp) {
             res.msg.msg = 'No se pudo obtener el nuevo número de factura';
             return res;

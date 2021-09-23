@@ -1,6 +1,6 @@
 /**
  * @version 2.0.0
- * @author Sebastian Cardona Loaiza <sebastian.cardona@gruponetw.com>
+ * @author Sebastian Cardona Loaiza <cardonaloaizasebastian112@gmail.com>
  * @copyright 2021 Todos los derechos reservados.
  * @description Script para declarar funciones de proposito general
  */

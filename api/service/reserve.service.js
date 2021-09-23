@@ -1,6 +1,6 @@
 /**
  * @version 1.0.0
- * @author Sebastian Cardona Loaiza <sebastian.cardona@gruponetw.com>
+ * @author Sebastian Cardona Loaiza <cardonaloaizasebastian112@gmail.com>
  * @copyright 2021 Todos los derechos reservados.
  */
 
@@ -99,7 +99,7 @@ const finishReserve = async (reserveNumber, res) => {
         }
 
         // Deshabilitar reserva
-        let newData = { active: false, status: 'cerrada' };
+        let newData = { active: false, status: 'CERRADA' };
         let response = await commonService.updateModel(Reserve, newData, id);
         if (!response.resp) return { resp: false, msg: `La reserva ${reserveNumber} no se actualizo.` };
         return { resp: true, msg: 'Reserva finalizada.' };
@@ -136,7 +136,7 @@ const cancelReserve = async (reserveNumber, res) => {
         }
 
         // Deshabilitar reserva
-        let newData = { active: false, status: 'cancelada' };
+        let newData = { active: false, status: 'CANCELADA' };
         let response = await commonService.updateModel(Reserve, newData, id);
         if (!response.resp) return { resp: false, msg: `La reserva ${reserveNumber} no se actualizo.` };
         return { resp: true, msg: 'Reserva cancelada.' };

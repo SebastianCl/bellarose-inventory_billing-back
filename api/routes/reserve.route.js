@@ -26,6 +26,6 @@ router.post('/findReserveWithFilter', reserve_controller.findReserveWithFilter);
 router.post('/finishReserve', reserve_controller.finishReserve);
 router.post('/findReserveByDate', reserve_controller.findReserveByDate);
 router.post('/cancelReserve', reserve_controller.cancelReserve);
-router.post('/getDataArticlesReserved', reserve_controller.getDataArticlesReserved);
+router.post('/dataArticlesReserved', reserve_controller.dataArticlesReserved);
 
 module.exports = router;
