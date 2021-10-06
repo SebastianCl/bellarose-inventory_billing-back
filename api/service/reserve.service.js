@@ -161,8 +161,8 @@ const findReserveByDate = async (startDate, endDate) => {
     let res = { resp: false, msg: {} };
 
     const response = await Reserve.query()
-        .filter('reserveDay', '>', startDate)
-        .filter('reserveDay', '<', endDate)
+        .filter('startDate', '>=', startDate)
+        .filter('startDate', '<=', endDate)
         .run();
 
     if (response.entities.length > 0) {

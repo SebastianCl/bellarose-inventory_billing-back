@@ -113,10 +113,11 @@ const createArticle = async (req, res) => {
         // Buscar si existe un artículo con la referencia enviada
         let filter = { filters: ['reference', reference] };
         let respFilter = await commonService.listModelsWithFilter(Article, filter);
-        if (respFilter.resp) return res.status(400).send({ resp: false, msg: `Ya existe un artículo de referencia ${reference}` });
+        if (respFilter.resp && respFilter.msg.size === size) return res.status(400).send({ resp: false, msg: `Ya existe un artículo de referencia ${reference} de talla ${size}` });
 
+        let code = `${reference}-${size}`;
         let imageData = {
-            nameFile: reference,
+            nameFile: code,
             routeFile: `${type}/${brand}/${color}/${size}`,
             imageBase64,
             available
@@ -127,7 +128,7 @@ const createArticle = async (req, res) => {
 
         let imageURL = responseStorage.msg.msg;
 
-        let dataArticle = { quantity, price, comments, type, brand, color, size, reference, available, imageURL };
+        let dataArticle = { quantity, price, comments, type, brand, color, size, reference, code, available, imageURL };
 
         let response = await commonService.createModel(Article, dataArticle);
         if (!response.resp) return res.status(400).send(response);
