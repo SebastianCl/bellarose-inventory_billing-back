@@ -113,7 +113,7 @@ const createArticle = async (req, res) => {
         // Buscar si existe un artículo con la referencia enviada
         let filter = { filters: ['reference', reference] };
         let respFilter = await commonService.listModelsWithFilter(Article, filter);
-        if (respFilter.resp && respFilter.msg.size === size) return res.status(400).send({ resp: false, msg: `Ya existe un artículo de referencia ${reference} de talla ${size}` });
+        if (respFilter.resp && respFilter.msg[0].size === size) return res.status(400).send({ resp: false, msg: `Ya existe un artículo de referencia ${reference} de talla ${size}` });
 
         let code = `${reference}-${size}`;
         let imageData = {
@@ -155,27 +155,40 @@ const updateArticle = async (req, res) => {
         let respArticle = await commonService.getModel(Article, id);
         if (!respArticle.resp) return res.status(400).send({ resp: false, msg: 'No existe el articulo.' });
 
-        let dataArticle = respArticle.msg;
 
-        let newData = req.body;
+        let dataArticle = respArticle.msg; // Infomración actual del articulo
+        let newData = req.body; // Nueva información del articulo
+
+        // Validar si va a cambiar al referencia o talla para determinar si ya existe un articulo con el código
+        let reference = newData.reference ? newData.reference.trim() : dataArticle.reference;
+        reference = reference.toUpperCase();
+        let size = newData.size ? newData.size.trim() : dataArticle.size;
+        size = size.toUpperCase();
+        let code = `${reference}-${size}`;
+
+        if (newData.reference || newData.size) {
+            let filter = { filters: [] };
+            filter.filters.push(['code', code])
+
+            const respFilter = await commonService.listModelsWithFilter(Article, filter);
+            if (respFilter.resp) return res.status(400).send({ resp: false, msg: `Ya existe un artículo de referencia ${reference} de talla ${size}` });
+        }
+
         let quantity = newData.quantity ? newData.quantity : dataArticle.quantity;
         let price = newData.price ? newData.price : dataArticle.price;
         let comments = newData.comments ? newData.comments : dataArticle.comments;
         let type = newData.type ? newData.type : dataArticle.type;
         let brand = newData.brand ? newData.brand.trim() : dataArticle.brand;
         let color = newData.color ? newData.color.trim() : dataArticle.color;
-        let size = newData.size ? newData.size.trim() : dataArticle.size;
-        size = size.toUpperCase();
-        let reference = newData.reference ? newData.reference.trim() : dataArticle.reference;
-        reference = reference.toUpperCase();
         let available = newData.available === undefined ? dataArticle.available : newData.available;
 
         // Actualizar imagen
         let imageURL = dataArticle.imageURL;
         let imageBase64 = newData.imageBase64;
+
         if (imageBase64) {
             let imageData = {
-                nameFile: reference,
+                nameFile: code,
                 routeFile: `${type}/${brand}/${color}/${size}`,
                 imageBase64,
                 available
@@ -198,13 +211,13 @@ const updateArticle = async (req, res) => {
         if (newData.type || newData.brand || newData.color || newData.size || newData.reference && !imageBase64) {
 
             let oldFilePathName = dataArticle.imageURL;
-            let newFilePathName = `${type}/${brand}/${color}/${size}/${reference}.png`;
+            let newFilePathName = `${type}/${brand}/${color}/${size}/${code}.png`;
             let respRename = await storageService.renameFile(oldFilePathName, newFilePathName);
             imageURL = newFilePathName;
             console.log(respRename);
         }
 
-        let newDataArticle = { quantity, price, comments, type, brand, color, size, reference, available, imageURL };
+        let newDataArticle = { quantity, price, comments, type, brand, color, size, reference, code, available, imageURL };
 
         let response = await commonService.updateModel(Article, newDataArticle, id);
         if (!response.resp) return res.status(400).send(response);
@@ -263,6 +276,9 @@ const findArticlesWithFilter = async (req, res) => {
         }
         if (options.size !== undefined && options.size !== "") {
             filter.filters.push(['size', options.size])
+        }
+        if (options.code !== undefined && options.code !== "") {
+            filter.filters.push(['code', options.code])
         }
 
         const articleList = await commonService.listModelsWithFilter(Article, filter);

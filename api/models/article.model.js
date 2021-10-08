@@ -22,7 +22,7 @@ const { Schema } = gstore;
 const articleSchema = new Schema({
     type: { type: String, required: true },
     reference: { type: String, required: true },
-    code: { type: String, required: false },
+    code: { type: String, required: true },
     brand: { type: String, required: true },
     color: { type: String, required: true },
     size: { type: String, required: true },
