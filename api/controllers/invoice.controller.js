@@ -78,7 +78,7 @@ const getInvoice = async (req, res) => {
                 if (!respAR.resp) return res.status(400).send(respAR);
 
                 const dataAR = respAR.msg;
-                articlesReserved.push({ reference: dataAR.reference, price: dataAR.price, discount: dataAR.discount });
+                articlesReserved.push({ code: dataAR.code, price: dataAR.price, discount: dataAR.discount });
             }
             dataInvoice.articles = articlesReserved; // Agregar información de todos los artículos reservados a la info de la factura
         }

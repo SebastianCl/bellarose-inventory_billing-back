@@ -44,7 +44,7 @@ const dataArticlesReserved = async (reserveNumber) => {
 
             let price = dataAR.price;
             let discount = dataAR.discount;
-            allAR.push({ reference: dataAR.reference, price, discount });
+            allAR.push({ code: dataAR.code, price, discount });
             subTotal = subTotal + price;
             cost = cost + (price - (price * (discount / 100)));
         }
