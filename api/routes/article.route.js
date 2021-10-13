@@ -5,8 +5,8 @@
  */
 
 /**
-* @controller Controlador de rutas API para las funcionalidades de articulo
-* @description Permite configurar las rutas de los servicios para la API de articulo
+* @controller Controlador de rutas API para las funcionalidades de artículo
+* @description Permite configurar las rutas de los servicios para la API de artículo
 */
 const express = require('express');
 const router = express.Router();

@@ -6,7 +6,7 @@
 
 /**
 * @controller Modelo de articlo
-* @description Se configura el modelo de articulo. Se configura la tabla NoSQL de la base de datos para el esquema.
+* @description Se configura el modelo de artículo. Se configura la tabla NoSQL de la base de datos para el esquema.
 */
 
 //Dependencias
@@ -17,7 +17,7 @@ const gstore = instances.get('unique-id');
 const { Schema } = gstore;
 
 /**
- * Creando el esquema para el modelo de articulo
+ * Creando el esquema para el modelo de artículo
 */
 const articleSchema = new Schema({
     type: { type: String, required: true },

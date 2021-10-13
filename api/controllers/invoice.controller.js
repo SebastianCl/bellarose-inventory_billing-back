@@ -67,7 +67,7 @@ const getInvoice = async (req, res) => {
 
         let dataInvoice = response.msg;
 
-        // Agregar información de articulos reservados
+        // Agregar información de artículos reservados
         if (dataInvoice.type == 1) {
             let AR_IDs = dataInvoice.reserve.articles;
             let articlesReserved = [];
@@ -80,7 +80,7 @@ const getInvoice = async (req, res) => {
                 const dataAR = respAR.msg;
                 articlesReserved.push({ reference: dataAR.reference, price: dataAR.price, discount: dataAR.discount });
             }
-            dataInvoice.articles = articlesReserved; // Agregar información de todos los articulos reservados a la info de la factura
+            dataInvoice.articles = articlesReserved; // Agregar información de todos los artículos reservados a la info de la factura
         }
 
         return res.status(200).send({ resp: true, msg: dataInvoice });
@@ -165,7 +165,7 @@ const createInvoiceReserve = async (body) => {
 
         let reserveNumber = dataReserve.reserveNumber;
         let responseAR = await articleReserved.dataArticlesReserved(reserveNumber);
-        if (!responseAR.resp) return res.status(400).send({ resp: false, msg: 'Fallo al buscar detalle de articulos reservados.' });
+        if (!responseAR.resp) return res.status(400).send({ resp: false, msg: 'Fallo al buscar detalle de artículos reservados.' });
         let articles = responseAR.msg;
 
         // Datos de factura
@@ -230,9 +230,9 @@ const createInvoiceSale = async (body) => {
             res.msg.msg = 'Debe indicar el id del empleado.';
             return res;
         }
-        // Validar si envia los articulos
+        // Validar si envia los artículos
         if (!articles || articles.length === 0) {
-            res.msg.msg = 'Debe indicar los articulos.';
+            res.msg.msg = 'Debe indicar los artículos.';
             return res;
         }
 
@@ -294,7 +294,7 @@ const createInvoiceSale = async (body) => {
             return res;
         }
 
-        // Remover articulos vendidos del inventario
+        // Remover artículos vendidos del inventario
         let dataArticles = respStatus.msg;
         let respRemove = await articleService.removeArticles(dataArticles);
         if (!respRemove.resp) console.log(respRemove.msg);

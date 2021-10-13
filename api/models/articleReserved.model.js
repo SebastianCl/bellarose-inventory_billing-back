@@ -20,7 +20,7 @@ const { Schema } = gstore;
  * Creando el esquema para el modelo de artículo
 */
 const articleReservedSchema = new Schema({
-    reference: { type: String, required: true },
+    code: { type: String, required: true },
     price: { type: Number, required: true },
     discount: { type: Number, required: true },
     dateInit: { type: Date, required: true },

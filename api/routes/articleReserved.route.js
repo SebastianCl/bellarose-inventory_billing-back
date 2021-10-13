@@ -5,7 +5,7 @@
  */
 
 /**
-* @controller Controlador de rutas API para las funcionalidades de articulo
+* @controller Controlador de rutas API para las funcionalidades de artículo
 * @description Permite configurar las rutas de los servicios para la API de artículos reservados
 */
 const express = require('express');

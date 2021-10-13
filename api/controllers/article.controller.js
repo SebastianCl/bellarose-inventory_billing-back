@@ -29,7 +29,7 @@ const validateData = require('../tools/validations/validateData'); // Scripts de
 
 /**
  * @function getArticles
- * @description Permite listar todas los articles
+ * @description Permite listar todas los artículos
  */
 const getArticles = async (req, res) => {
     try {
@@ -48,7 +48,7 @@ const getArticles = async (req, res) => {
 
 /**
  * @function getArticle
- * @description Permite obtener un articulo filtrado por ID.
+ * @description Permite obtener un artículo filtrado por ID.
  */
 const getArticle = async (req, res) => {
     try {
@@ -67,7 +67,7 @@ const getArticle = async (req, res) => {
 
 /**
  * @function createArticle
- * @description Permite crear un articulo nueva en el DataStore
+ * @description Permite crear un artículo nueva en el DataStore
  */
 const createArticle = async (req, res) => {
     try {
@@ -91,11 +91,11 @@ const createArticle = async (req, res) => {
         let available = data.available;
 
 
-        // Validar si se envio la cantidad de articulos
+        // Validar si se envio la cantidad de artículos
         if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar la cantidad.' });
-        // Validar si se envio el precio del articulo
+        // Validar si se envio el precio del artículo
         if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar el precio.' });
-        // Validar si se envio el tipo articulo
+        // Validar si se envio el tipo artículo
         if (validateData.isEmpty(type)) return res.status(400).send({ resp: false, msg: 'Debe enviar el tipo.' });
         // Validar si se envio la marca
         if (validateData.isEmpty(brand)) return res.status(400).send({ resp: false, msg: 'Debe enviar la marca.' });
@@ -141,7 +141,7 @@ const createArticle = async (req, res) => {
 
 /**
  * @function updateArticle
- * @description Permite actualizar un articulo especifico por ID
+ * @description Permite actualizar un artículo especifico por ID
  */
 const updateArticle = async (req, res) => {
     try {
@@ -150,23 +150,24 @@ const updateArticle = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let id = req.headers['id'];
-        if (validateData.isEmpty(id)) return res.status(400).send({ resp: false, msg: 'Debe enviar el id del articulo.' });
+        if (validateData.isEmpty(id)) return res.status(400).send({ resp: false, msg: 'Debe enviar el id del artículo.' });
 
         let respArticle = await commonService.getModel(Article, id);
-        if (!respArticle.resp) return res.status(400).send({ resp: false, msg: 'No existe el articulo.' });
+        if (!respArticle.resp) return res.status(400).send({ resp: false, msg: 'No existe el artículo.' });
 
 
-        let dataArticle = respArticle.msg; // Infomración actual del articulo
-        let newData = req.body; // Nueva información del articulo
+        let dataArticle = respArticle.msg; // Infomración actual del artículo
+        let newData = req.body; // Nueva información del artículo
 
-        // Validar si va a cambiar al referencia o talla para determinar si ya existe un articulo con el código
+        // Validar si va a cambiar la referencia o talla para determinar si ya existe un artículo con el código
         let reference = newData.reference ? newData.reference.trim() : dataArticle.reference;
         reference = reference.toUpperCase();
         let size = newData.size ? newData.size.trim() : dataArticle.size;
         size = size.toUpperCase();
         let code = `${reference}-${size}`;
+        let newCode = `${newData.reference}-${newData.size}`;
 
-        if (newData.reference || newData.size) {
+        if (newCode !== code) {
             let filter = { filters: [] };
             filter.filters.push(['code', code])
 
@@ -188,7 +189,7 @@ const updateArticle = async (req, res) => {
 
         if (imageBase64) {
             let imageData = {
-                nameFile: code,
+                nameFile: newCode,
                 routeFile: `${type}/${brand}/${color}/${size}`,
                 imageBase64,
                 available
@@ -211,13 +212,13 @@ const updateArticle = async (req, res) => {
         if (newData.type || newData.brand || newData.color || newData.size || newData.reference && !imageBase64) {
 
             let oldFilePathName = dataArticle.imageURL;
-            let newFilePathName = `${type}/${brand}/${color}/${size}/${code}.png`;
+            let newFilePathName = `${type}/${brand}/${color}/${size}/${newCode}.png`;
             let respRename = await storageService.renameFile(oldFilePathName, newFilePathName);
             imageURL = newFilePathName;
             console.log(respRename);
         }
 
-        let newDataArticle = { quantity, price, comments, type, brand, color, size, reference, code, available, imageURL };
+        let newDataArticle = { quantity, price, comments, type, brand, color, size, reference, code: newCode, available, imageURL };
 
         let response = await commonService.updateModel(Article, newDataArticle, id);
         if (!response.resp) return res.status(400).send(response);
@@ -231,7 +232,7 @@ const updateArticle = async (req, res) => {
 
 /**
  * @function deleteArticle
- * @description Permite eliminar un articulo especifico por ID
+ * @description Permite eliminar un artículo especifico por ID
  */
 const deleteArticle = async (req, res) => {
     try {
@@ -291,7 +292,7 @@ const findArticlesWithFilter = async (req, res) => {
 
 /**
  * @function validateAvailability
- * @description Valida la disponibilidad de articulos
+ * @description Valida la disponibilidad de artículos
  */
 const validateAvailability = async (req, res) => {
     try {
@@ -300,7 +301,7 @@ const validateAvailability = async (req, res) => {
         if (!resToken.resp) return res.status(401).send(resToken);
 
         let articles = req.body.articles;
-        if (articles === undefined || articles.length === 0) return res.status(400).send({ resp: false, msg: 'Debe enviar al menos un articulo.' });
+        if (articles === undefined || articles.length === 0) return res.status(400).send({ resp: false, msg: 'Debe enviar al menos un artículo.' });
 
         let respStatus = await articleService.articleStatus(articles);
         if (!respStatus.resp) return res.status(400).send(respStatus);
@@ -317,7 +318,7 @@ const validateAvailability = async (req, res) => {
 
 /**
  * @function suggestionsList
- * @description Generar lista de referencias de articulos
+ * @description Generar lista de referencias de artículos
  */
 const suggestionsList = async (req, res) => {
     let response = { resp: false, msg: 'Fallo al generar las sugerencias.' };

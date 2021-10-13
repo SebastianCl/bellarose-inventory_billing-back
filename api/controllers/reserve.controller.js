@@ -61,6 +61,7 @@ const getReserve = async (req, res) => {
         // Validar el token 
         let resToken = auth.verifyToken(req);
         if (!resToken.resp) return res.status(401).send(resToken);
+
         let id = req.headers['id'];
         const respReserve = await commonService.getModel(Reserve, id);
         if (!respReserve.resp) return res.status(400).send(respReserve);
@@ -75,7 +76,7 @@ const getReserve = async (req, res) => {
             if (!respAR.resp) return res.status(400).send(respAR);
             const dataAR = respAR.msg;
 
-            articles.push({ reference: dataAR.reference, price: dataAR.price, discount: dataAR.discount });
+            articles.push({ code: dataAR.code, price: dataAR.price, discount: dataAR.discount });
         }
 
         dataReserve.articles = articles;
@@ -96,17 +97,17 @@ async function articleStatusDate(articles, startDate, endDate) {
 
     for (let value of articles) {
         // Datos de artículo
-        const reference = value.reference;
+        const code = value.code;
         const price = value.price;
         const discount = value.discount;
 
-        let filter = { filters: ['reference', reference] };
+        let filter = { filters: ['code', code] };
         let exist = await commonService.listModelsWithFilter(Article, filter);
 
         // Validar si el artículo existe
         if (!exist.resp) {
-            allBad.push({ reference, motive: 'No existe artículo con la referencia indicada.' });
-            typeNumError = 1; // FALLA por no existir artículo con referencia indicada
+            allBad.push({ code, motive: 'No existe artículo con el codigo indicado.' });
+            typeNumError = 1; // FALLA por no existir artículo con código indicado
             break;
         }
 
@@ -114,7 +115,7 @@ async function articleStatusDate(articles, startDate, endDate) {
         // Validar si hay artículos disponibles
         if (articleData.quantity === 0) {
             let filterAR = { filters: [] };
-            filterAR.filters.push(['reference', articleData.reference]);
+            filterAR.filters.push(['code', articleData.code]);
             filterAR.filters.push(['active', true]);
             let responseEarlyDate = await commonService.listModelsWithFilter(ArticleReserved, filterAR);
             if (!responseEarlyDate.resp) return { resp: false, msg: 'Fallo al buscar el artículo reservado.' };
@@ -124,12 +125,12 @@ async function articleStatusDate(articles, startDate, endDate) {
             // Ordenar lista ascendente
             const listARorder = listAR.sort((a, b) => a.dateEnd - b.dateEnd);
             const earlyDate = listARorder[0].dateEnd; // Fecha más cercana en que se devolvera el artículo
-            allBad.push({ reference, earlyDate });
+            allBad.push({ code, earlyDate });
             typeNumError = 2; // FALLA por no disponibilidad
             break;
         }
 
-        const dataArticleReserved = { id: articleData.id, quantity: articleData.quantity, reference, price, discount, dateInit: startDate, dateEnd: endDate };
+        const dataArticleReserved = { id: articleData.id, quantity: articleData.quantity, code, price, discount, dateInit: startDate, dateEnd: endDate };
         allDataArticles.push(dataArticleReserved);
     }
     if (allBad.length > 0) {
@@ -156,7 +157,7 @@ async function createAR(dataArticleReserved) {
 
     // Crear registro de artículo reservado
     const dataAR = {
-        reference: dataArticleReserved.reference, price: dataArticleReserved.price, discount: dataArticleReserved.discount,
+        code: dataArticleReserved.code, price: dataArticleReserved.price, discount: dataArticleReserved.discount,
         dateInit: dataArticleReserved.dateInit, dateEnd: dataArticleReserved.dateEnd
     };
 
@@ -354,12 +355,12 @@ const editReserve = async (req, res) => {
         // Valida si se actualiza la descripción
         let description = newData.description ? newData.description : dataReserve.description;
 
-        let allId_AR = dataReserve.articles; // IDs de antiguos articulos reservados    
+        let allId_AR = dataReserve.articles; // IDs de antiguos artículos reservados    
         let newArticles = newData.articles;
         let cost = dataReserve.cost;
         // Validar si se edita la lista de artículos
         if (newArticles) {
-            // Borrar registros viejos de articulos reservados y retornar al inventario
+            // Borrar registros viejos de artículos reservados y retornar al inventario
             let oldAR = dataReserve.articles;
             for (let index = 0; index < oldAR.length; index++) {
                 const idAR = oldAR[index];
@@ -369,8 +370,8 @@ const editReserve = async (req, res) => {
                 if (!responseAR.resp) return responseAR;
 
                 // Buscar información del artículo
-                let reference = responseAR.msg.reference;
-                let filter = { filters: ['reference', reference] };
+                let code = responseAR.msg.code;
+                let filter = { filters: ['code', code] };
                 let respArticle = await commonService.listModelsWithFilter(Article, filter);
 
                 // Retornar artículo al inventario
@@ -378,7 +379,7 @@ const editReserve = async (req, res) => {
                 let data = { quantity: respArticle.msg.quantity + 1 }
                 await commonService.updateModel(Article, data, idArticle);
 
-                // Eliminar articulo reservado
+                // Eliminar artículo reservado
                 let respDeleteAR = await commonService.deleteModel(ArticleReserved, idAR);
                 if (!respDeleteAR.resp) return respDeleteAR;
             }
@@ -532,7 +533,7 @@ const findReserveByDate = async (req, res) => {
 
 /**
  * @function dataArticlesReserved
- * @description Retorna el detalle de los articulos reservados
+ * @description Retorna el detalle de los artículos reservados
  */
 const dataArticlesReserved = async (req, res) => {
     try {

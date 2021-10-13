@@ -5,7 +5,7 @@
  */
 
 /**
-* @controller Servicio de articulo reservado
+* @controller Servicio de artículo reservado
 */
 
 // Modelo
@@ -18,7 +18,7 @@ const commonService = require('./common.service');
 
 /**
  * @function dataArticlesReserved
- * @description Retorna el detalle de los articulos 
+ * @description Retorna el detalle de los artículos 
  */
 const dataArticlesReserved = async (reserveNumber) => {
     try {
