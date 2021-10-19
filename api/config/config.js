@@ -1,13 +1,14 @@
 module.exports = {
   'version': '1.0.0',
   'secret': '*987654321bellarose-inventory_billing123456789*',
-  'keyPath': './api/config/key/',
   'moraCost': 10000,
-  'front': 'http://localhost:4200',
-  'key': 'bellarose-qa-7196b9c80b13.json',
-  'bucketName': 'bellarose-qa.appspot.com',
+  'keyPath': './api/config/key/',
+  'key': 'bellarose-qa-if-8fbeb9b2eb33.json',
+  'front': 'https://bellarose-qa-if.ue.r.appspot.com',
+  'bucketName': 'bellarose-qa-if.appspot.com',//'bellarose-qa.appspot.com',
+  //'keyPath': './api/config/key2/', //prod
+  //'key': 'bellarose-inventarioyreservas-18da8f127eb1.json', //prod  
   //'front': 'https://bellarose-inventarioyreservas.uw.r.appspot.com', // prod
-  //'key': 'bellarose-inventarioyreservas-18da8f127eb1.json', //prod
   //'bucketName': 'bellarose-inventarioyreservas.appspot.com'  //prod
 };
 

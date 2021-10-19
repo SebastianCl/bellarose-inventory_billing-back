@@ -2,17 +2,11 @@ require('dotenv').config();
 // Configuración de api
 const config = require('../config/config');
 
-function getKeyPath() {
-    return config.keyPath + config.key_dev;
-}
+function getKeyPath() { return config.keyPath + config.key; }
 
-function getFront() {
-    return config.front;
-}
+function getFront() { return config.front; }
 
-function getBucketName() {
-    return config.bucketName;
-}
+function getBucketName() { return config.bucketName; }
 
 function getConfigEmail() {
     return {
