@@ -80,13 +80,12 @@ const createArticle = async (req, res) => {
         let quantity = data.quantity;
         let price = data.price;
         let comments = data.comments ? data.comments : '';
-        let type = data.type.trim();
-        let brand = data.brand.trim();
-        let color = data.color.trim();
-        let size = data.size.trim();
-        size = size.toUpperCase();
-        let reference = data.reference.trim();
-        reference = reference.toUpperCase();
+        let type = data.type.replace(/ /g, "");
+        let brand = data.brand.replace(/ /g, "");
+        let color = data.color.replace(/ /g, "");
+        let size = data.size.replace(/ /g, "").toUpperCase();
+        let reference = data.reference.replace(/ /g, "").toUpperCase();
+
         let imageBase64 = data.imageBase64;
         let available = data.available;
 
@@ -160,16 +159,14 @@ const updateArticle = async (req, res) => {
         let newData = req.body; // Nueva información del artículo
 
         // Validar si va a cambiar la referencia o talla para determinar si ya existe un artículo con el código
-        let reference = newData.reference ? newData.reference.trim() : dataArticle.reference;
-        reference = reference.toUpperCase();
-        let size = newData.size ? newData.size.trim() : dataArticle.size;
-        size = size.toUpperCase();
-        let code = `${reference}-${size}`;
-        let newCode = `${newData.reference}-${newData.size}`;
+        let reference = newData.reference ? newData.reference.replace(/ /g, "").toUpperCase() : dataArticle.reference;
+        let size = newData.size ? newData.size.replace(/ /g, "").toUpperCase() : dataArticle.size;
+        let oldCode = dataArticle.code;
+        let newCode = `${reference}-${size}`;
 
-        if (newCode !== code) {
+        if (newCode !== oldCode) {
             let filter = { filters: [] };
-            filter.filters.push(['code', code])
+            filter.filters.push(['code', newCode])
 
             const respFilter = await commonService.listModelsWithFilter(Article, filter);
             if (respFilter.resp) return res.status(400).send({ resp: false, msg: `Ya existe un artículo de referencia ${reference} de talla ${size}` });
@@ -179,8 +176,8 @@ const updateArticle = async (req, res) => {
         let price = newData.price ? newData.price : dataArticle.price;
         let comments = newData.comments ? newData.comments : dataArticle.comments;
         let type = newData.type ? newData.type : dataArticle.type;
-        let brand = newData.brand ? newData.brand.trim() : dataArticle.brand;
-        let color = newData.color ? newData.color.trim() : dataArticle.color;
+        let brand = newData.brand ? newData.brand.replace(/ /g, "") : dataArticle.brand;
+        let color = newData.color ? newData.color.replace(/ /g, "") : dataArticle.color;
         let available = newData.available === undefined ? dataArticle.available : newData.available;
 
         // Actualizar imagen
@@ -207,9 +204,9 @@ const updateArticle = async (req, res) => {
                 console.log(responseStorage);
             }
         }
-
+        
         // Actualizar ruta de imagen
-        if (newData.type || newData.brand || newData.color || newData.size || newData.reference && !imageBase64) {
+        if ((newData.type || newData.brand || newData.color || newData.size || newData.reference) && !imageBase64) {
 
             let oldFilePathName = dataArticle.imageURL;
             let newFilePathName = `${type}/${brand}/${color}/${size}/${newCode}.png`;
