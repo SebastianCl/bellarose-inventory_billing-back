@@ -36,6 +36,8 @@ const invoiceSchema = new Schema({
     depositState: { type: Boolean, read: true, required: false },
     payment: { type: Number, read: true, required: false },
     description: { type: String, read: true, required: false },
+    cash: { type: Boolean, read: true, required: true },
+    transfer: { type: Boolean, read: true, required: true },
 
     date: { type: Date, required: false, default: gstore.defaultValues.NOW },
     active: { type: Boolean, read: true, default: true }, // false: al pagar el total de la factura

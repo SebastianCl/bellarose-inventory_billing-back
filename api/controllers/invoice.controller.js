@@ -5,7 +5,7 @@
  */
 
 /**
-* @controller Controlador de empleado
+* @controller Controlador de factura
 * @description Script NODEJS que permite realizar operaciones sobre los factura registrados. Utilizamos 
 *              como servicio la base de datos no relacional Google Cloud DataStore.
 */
@@ -118,7 +118,11 @@ const createInvoiceReserve = async (body) => {
         let deposit = body.deposit;
         let depositState = body.depositState;
         let payment = body.payment;
+        let transfer = body.transfer;
+        let cash = body.cash;
         let description = body.description ? body.description : '';
+
+        // Validar si envio los datos de la factura
 
         if (!reserveID) {
             res.msg.msg = 'Debe indicar el número de la reserva.';
@@ -136,14 +140,10 @@ const createInvoiceReserve = async (body) => {
             res.msg.msg = 'Debe indicar el pago.';
             return res;
         }
-
-        let respInvoiceNumber = await getNewNumberInvoice(); // Obtener nuevo número de reserva
-        if (!respInvoiceNumber.resp) {
-            res.msg.msg = 'No se pudo obtener el nuevo número de factura';
+        if (!transfer && !cash) {
+            res.msg.msg = 'Debe indicar el medio de pago.';
             return res;
         }
-
-        let invoiceNumber = respInvoiceNumber.msg; // Nuevo número de factura
 
         // Validar si existe la reserva
         let respReserve = await commonService.getModel(Reserve, reserveID, true);
@@ -163,6 +163,14 @@ const createInvoiceReserve = async (body) => {
             return res;
         }
 
+        // Obtener nuevo número de factura
+        let respInvoiceNumber = await getNewNumberInvoice();
+        if (!respInvoiceNumber.resp) {
+            res.msg.msg = 'No se pudo obtener el nuevo número de factura';
+            return res;
+        }
+        let invoiceNumber = respInvoiceNumber.msg; // Nuevo número de factura
+
         let reserveNumber = dataReserve.reserveNumber;
         let responseAR = await articleReserved.dataArticlesReserved(reserveNumber);
         if (!responseAR.resp) return res.status(400).send({ resp: false, msg: 'Fallo al buscar detalle de artículos reservados.' });
@@ -178,7 +186,7 @@ const createInvoiceReserve = async (body) => {
 
         let data = {
             reserve: keyReserve, reserveNumber, customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
-            cost, deposit, depositState, payment, description, active: true, type: '1', articles
+            cost, deposit, depositState, payment, description, active: true, type: '1', articles, transfer, cash
         }
 
         // Crear factura
@@ -219,6 +227,8 @@ const createInvoiceSale = async (body) => {
         let employeeID = body.employeeID;
         let articles = body.articles;
         let description = body.description ? body.description : '';
+        let transfer = body.transfer;
+        let cash = body.cash;
 
         // Validar si envia ID del cliente
         if (!customerID) {
@@ -235,6 +245,12 @@ const createInvoiceSale = async (body) => {
             res.msg.msg = 'Debe indicar los artículos.';
             return res;
         }
+        // Validar si envia el medio de de pago
+        if (transfer === undefined && cash === undefined) {
+            res.msg.msg = 'Debe indicar el medio de pago.';
+            return res;
+        }
+
 
         let respCustomer = await commonService.getModel(Customer, customerID);
         if (!respCustomer.resp) {
@@ -284,7 +300,7 @@ const createInvoiceSale = async (body) => {
 
         let data = {
             customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
-            cost, payment, description, active: true, type: '2', articles
+            cost, payment, description, active: true, type: '2', articles, transfer, cash
         }
 
         // Crear factura
@@ -321,6 +337,8 @@ const createInvoiceDemage = async (body) => {
         let employeeID = body.employeeID;
         let cost = body.cost;
         let description = body.description ? body.description : '';
+        let transfer = body.transfer;
+        let cash = body.cash;
 
         // Validar si envia ID del cliente
         if (!customerID) {
@@ -337,6 +355,12 @@ const createInvoiceDemage = async (body) => {
             res.msg.msg = 'Debe indicar el costo.';
             return res;
         }
+        // Validar si envia el tipo de pago
+        if (transfer === undefined && cash === undefined) {
+            res.msg.msg = 'Debe indicar el medio de pago.';
+            return res;
+        }
+
         const payment = cost;
 
         let respCustomer = await commonService.getModel(Customer, customerID);
@@ -367,7 +391,7 @@ const createInvoiceDemage = async (body) => {
 
         let data = {
             customerName, customerIdentification, customerDirection, customerEmail, employeeName, invoiceNumber,
-            cost, payment, description, active: true, type: '3'
+            cost, payment, description, active: true, type: '3', transfer, cash
         }
 
         // Crear factura

@@ -4,7 +4,7 @@ module.exports = {
   'moraCost': 10000,
   'keyPath': './api/config/key/',
   'key': 'bellarose-qa-if-8fbeb9b2eb33.json',
-  'front': 'https://bellarose-qa-if.ue.r.appspot.com',
+  'front': 'http://localhost:4200', //'https://bellarose-qa-if.ue.r.appspot.com',
   'bucketName': 'bellarose-qa-if.appspot.com',//'bellarose-qa.appspot.com',
   //'keyPath': './api/config/key2/', //prod
   //'key': 'bellarose-inventarioyreservas-18da8f127eb1.json', //prod  

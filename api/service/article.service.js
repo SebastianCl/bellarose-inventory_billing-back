@@ -18,7 +18,7 @@ const commonService = require('./common.service');
 
 /**
  * @function saveArticle
- * @param {Array} itemData Articulos a registrar
+ * @param {Array} itemData Artículos a registrar
  * @description Permite registrar varios artículos
  */
 const saveArticle = async (itemData) => {
@@ -110,7 +110,7 @@ const articleStatus = async (articles) => {
 
 /**
  * @function removeArticles
- * @param {Array} articles Articulos a registrar
+ * @param {Array} articles Artículos a registrar
  * @description Permite registrar varios artículos
  */
 const removeArticles = async (articles) => {
@@ -132,7 +132,7 @@ const removeArticles = async (articles) => {
 
     if (allBad.length === 0) {
         res.resp = true;
-        res.msg = 'Articulos removidos.'
+        res.msg = 'Artículos removidos.'
     }
     else {
         res.msg = allBad;
